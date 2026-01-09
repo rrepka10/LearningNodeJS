@@ -1,22 +1,15 @@
 BASIC TYPES:
 
 
-there are several core types:
+there are several core types: number, string, boolean, function, object
 
-numbers, strings, booleans, functions, objects
+null, undefined are actually both types, although just particular instances 
+   of objects, and arrays a special case of objects.
 
-null, undefined are actually both types, although just particular instances of objects, and arrays a special case of objects.
-
-if we have a variable in javascript, type is
-
-typeof x
-
-note arrays will return 'object'.  see section on arrays.
-
-
+if we have a variable in javascript, type is: typeof x
+  note arrays will return 'object'.  see section on arrays.
 
 NUMBERS
-
 - 64bit double precision floating point numbers -- there are no "integer" types in javascript.
 - that means you have 53 bits of precision.
 - if you are going to represent 64bits in javascript, use strings or separate library
@@ -32,30 +25,29 @@ NUMBERS
 
 
 BOOLEANS:
-
 - can have the value true or false
 - you can force things to boolean with the Booelan(XXX) function, but rarely necessary
+- "=="is same value"  "===" same value AND type
 
 
 STRINGS:
-
 - strings are sequences of unicode characters
 - great for most characters around the world
 - no separate character data type -- can just use 1-char strings
 - to get the length, jut use .length
 var s = "my string";
-console.log(s.length);
+console.log(s.length);    - prints the length of the string to the console 
 // or
 console.log("my string".length);
 
 many interesting functions on strings:
 
-int str.indexOf("there");
-string "hello there".slice(5, 6) == " " // true
+int str.indexOf("there");   - returns the index of "there" in string or -1
+string "hello there".slice(5, 6) == " " // true    
+    origin 0 - returns the character starting at 5, ending before 6
 string "hello there".substr(5, 1) == " " // true
-array "1,2,3,4,5".split(",")
-
-
+   origin 0 - returns the character starting at 5, length 1
+array "1,2,3,4,5".split(",")   - parses on "," and returns an array
 
 null is a special value   indicates non-value
 undefined means no such thing or no value set yet
@@ -64,4 +56,12 @@ var x;
 -> undefined
 console.log(x);
 -> undefined
+
+Strings can build using "+"
+"cats + " go " + "meow"  = results in "cats go meow"
+.trim() - removes leadning and trailing white space
+Regular expressions are also supported 
+  "aaoo".replace(/[Aa]{2,}/, "b");    // replace A or a with b
+  "aaoo".search(/[Aa]{2,}/);          // returns 0
+  "aoo".search(/[Aa]{2,}/);           // returns -1 (not found)
 

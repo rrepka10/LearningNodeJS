@@ -1,3 +1,11 @@
+// Very simple web server with a bug
+// Test with
+// browser http://localhost:8080   and   curl -i http://localhost:8080
+// Will cause an error due to a typo in 'length'
+// use:  node inspect 02_debug.js   cont, next, step, out, backtrace, 
+// repl - reply mode, to examine variables, ctrl-c to exit
+// watch('var'), list n, setBreakpoint(n),  .exit
+
 var http = require("http");
 
 var s = http.createServer(function (req, res) {

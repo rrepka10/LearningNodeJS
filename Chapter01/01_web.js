@@ -1,3 +1,8 @@
+// Very simple web server
+// Test with
+// browser http://localhost:8080   and
+// curl -i http://localhost:8080
+
 var http = require("http");
 
 function process_request(req, res) {
