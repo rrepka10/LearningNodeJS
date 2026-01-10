@@ -1,10 +1,13 @@
+// This demonstrates the possible temporary scope of the
+// "this" variable.
 
 var fs = require('fs');
 
+// File object definition and accesors
 function FileObject () {
-
     this.filename = '';
 
+    // exists accessor
     this.file_exists = function (callback) {
         if (!this.filename) {
             var e = new Error("invalid_filename");
@@ -14,8 +17,11 @@ function FileObject () {
         }
 
         console.log("About to open: " + this.filename);
+        //fs.open(filename, flags, callback (err, handle))
         fs.open(this.filename, 'r', function (err, handle) {
             if (err) {
+                // By the time this call back executes the
+                // this variable is out of scope.
                 console.log("Can't open: " + this.filename);
                 callback(err, false);
                 return;

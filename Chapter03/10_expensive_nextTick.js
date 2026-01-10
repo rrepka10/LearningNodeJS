@@ -1,3 +1,9 @@
+// This demonstrats a long running, local function that could
+// "hang" nodeJS when running on large data sets BUT it 
+// gives up control periodically to let Node run other event
+// loop items
+
+console.time("timer");
 
 function compute_intersection(arr1, arr2, callback) {
 
@@ -10,6 +16,7 @@ function compute_intersection(arr1, arr2, callback) {
     var size = 10;          // 100 at a time, can adjust!
     var results = [];
 
+    // Define the local processing instruction
     function sub_compute_intersection() {
         for (var i = sidx; i < (sidx + size) && i < biglen; i++) {
             for (var j = 0; j < smlen; j++) {
@@ -18,16 +25,19 @@ function compute_intersection(arr1, arr2, callback) {
                     break;
                 }
             }
-        }
+        } // end for i
 
+        // Return the data when we are done
         if (i >= biglen) {
             callback(null, results);
         } else {
             sidx += size;
+            // Not done, give up control 
             process.nextTick(sub_compute_intersection);
         }
-    }
+    } // End function
 
+    // Call the processing function
     sub_compute_intersection();
 }
 
@@ -46,7 +56,8 @@ compute_intersection(a1, a2, function (err, results) {
     if (err) {
         console.log(err);
     } else {
-        console.log(results);
+         console.timeEnd("timer");
+        console.log("Results", results);
     }
 });
 
