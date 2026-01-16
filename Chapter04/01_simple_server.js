@@ -1,3 +1,6 @@
+// Simple web server, test with: 
+// curl -X GET http://localhost:8080/     returns: {"error":null}, shows INCOMING REQUEST: GET /
+// curl -X GET http://localhost:8080/junk returns: {"error":null}  shows INCOMING REQUEST: GET /junk
 
 var http = require('http');
 
