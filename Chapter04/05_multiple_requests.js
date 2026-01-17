@@ -91,6 +91,7 @@ function load_album(album_name, callback) {
         // only process the length of the array
         // console.log("files.length:", files ,files.length);
         var riterator = (index) => {
+            // Are we done
             if (index == files.length) {
                 // All done, bild a json object
                 var obj = { short_name: album_name,
@@ -143,7 +144,7 @@ function handle_incoming_request(req, res) {
     }
 }
 
-// provides the gneric list 
+// provides the generic list 
 function handle_list_albums(req, res) {
     load_album_list((err, albums) => {
         if (err) {
