@@ -10,12 +10,11 @@
 //               http://localhost:8080/albums/italy2012.json?page=1&page_size=2      - image 3,4
 //               http://localhost:8080/albums/italy2012.json?page=2&page_size=2      - image 5
 //               http://localhost:8080/albums/italy2012.json?page=3&page_size=2      - no images
-// Note: This uses url.parse() which has been deprecated.  N
-//       Needs to be switched to WHATWG URL API
+// Note: This uses url.parse() which has been deprecated.  Using URL instead
 
 var http = require('http'),
-    fs = require('fs'),
-    url = require('url');
+    fs = require('fs');
+//  url = require('url');  deprecated 
 
 // provides the directory list of everything in the directory
 function load_album_list(callback) {
@@ -145,19 +144,32 @@ function load_album(album_name, page, page_size, callback) {
 
 // provides the directory list of everything in the directory
 function handle_incoming_request(req, res) { 
+/*
     // parse the query params into an object and get the path
     // without them. (2nd param true = parse the params).
-    // Note: url.parse() has been deprecated, switch to WHATWG URL API
+    // Note: url.parse() has been deprecated, switch to URL
     req.parsed_url = url.parse(req.url, true);
     var core_url = req.parsed_url.pathname;
+*/
+
+    const url = new URL(req.url, `http://${req.headers.host}/`);
+ 
+    var core_url = url.pathname;	
+    req.parsed_url = url;
+  
+    //album_name:  /italy2012 Page number  0 Page size  21000
+    var album_name = url.pathname.substring(7, url.pathname.length-5);
+
+    // console.log("Parsed URL:", req.parsed_url);
+    console.log("Core Url:", core_url);
 
     // test this fixed url to see what they're asking for
     if (core_url == '/albums.json') {
-        // Generic "get all"
+        // Generic "get all" http://localhost:8080/albums.json
         handle_list_albums(req, res);
-    } else if (core_url.substr(0, 7) == '/albums'
-               && core_url.substr(core_url.length - 5) == '.json') {
-        // get a specific alubm
+    } else if (core_url.substring(0, 7) == '/albums'
+               && core_url.substring(core_url.length - 5) == '.json') {
+        // get a specific album http://localhost:8080/albums/italy2012.json
         handle_get_album(req, res);
     } else {
         // Invalid request
@@ -184,6 +196,8 @@ function handle_list_albums(req, res) {
 // http://localhost:8080/italy2012.json?page=1&page_size=20
 function handle_get_album(req, res) {
     // format of request is /albums/album_name.json?other stuff
+
+    /*
     // get the GET params
     var getp = req.parsed_url.query;
 
@@ -207,7 +221,28 @@ function handle_get_album(req, res) {
 
     // remove the  "/albums" and ".json"
     var album_name = core_url.substr(7, core_url.length - 12);
-    console.log("album_name: ", album_name, "Page number ", page_num,  "Page size ", page_size);
+    */
+
+    const url = new URL(req.url, `http://${req.headers.host}/`);
+    const query = new URLSearchParams(url.search);
+    //console.log("URL object", url);
+    //console.log("query object", query);
+
+    //Core URL:  /albums/italy2012.json
+    // console.log("core url", url.pathname);	
+  
+    //album_name:  /italy2012 Page number  0 Page size  21000
+    var album_name = url.pathname.substring(7, url.pathname.length-5);
+
+    // Force the values to integers
+    var page_num  = url.searchParams.get("page")      ? parseInt(url.searchParams.get("page")) : 0;
+    var page_size = url.searchParams.get("page_size") ? parseInt(url.searchParams.get("page_size")) : 1000;
+
+     // Give the optional parameters default values if necessary
+    if (isNaN(parseInt(page_num)))  page_num = 0;
+    if (isNaN(parseInt(page_size))) page_size = 1000;
+
+    console.log("album_name:", album_name, "Page number:", page_num,  "Page size:", page_size);
 
     // page_num and page_size are the optional parameters included
     // on the URL.  
