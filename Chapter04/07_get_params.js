@@ -10,7 +10,7 @@
 //               http://localhost:8080/albums/italy2012.json?page=1&page_size=2      - image 3,4
 //               http://localhost:8080/albums/italy2012.json?page=2&page_size=2      - image 5
 //               http://localhost:8080/albums/italy2012.json?page=3&page_size=2      - no images
-// Note: This uses url.parse() which has been deprecated.  Using URL instead
+// Note: This used url.parse() which has been deprecated.  Using URL instead
 
 var http = require('http'),
     fs = require('fs');
@@ -193,7 +193,7 @@ function handle_list_albums(req, res) {
 
 // provides the file list for a specifc directory 
 // BUT with including optional parameters
-// http://localhost:8080/italy2012.json?page=1&page_size=20
+// http://localhost:8080/italy2012.json?page=1&page_size=2
 function handle_get_album(req, res) {
     // format of request is /albums/album_name.json?other stuff
 
