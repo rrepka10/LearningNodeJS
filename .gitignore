@@ -1,0 +1,8 @@
+# Ignore the node files
+Chapter05/node_modules/
+Chapter05/package-lock.json
+
+node_modules/
+.DS_Store
+Thumbs.db
+ 

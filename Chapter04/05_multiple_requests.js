@@ -93,7 +93,7 @@ function load_album(album_name, callback) {
         var riterator = (index) => {
             // Are we done
             if (index == files.length) {
-                // All done, bild a json object
+                // All done, build a json object
                 var obj = { short_name: album_name,
                             photos: only_files };
                 callback(null, obj);

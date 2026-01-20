@@ -7,5 +7,10 @@ Origional code taken from: https://github.com/marcwan/LearningNodeJS
 
 See Chapter02 - types.txt for notes:
 
+## Updates
+This updates all "New Buffer() to "Buffer.alloc()" and 
+replace url.parse() with URLparse()
+
+
 
 
