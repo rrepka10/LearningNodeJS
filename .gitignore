@@ -1,6 +1,7 @@
 # Ignore the node files
 Chapter05/node_modules/
 Chapter05/package-lock.json
+Chapter06/copy_of_01_simple_stream.js
 
 node_modules/
 .DS_Store
