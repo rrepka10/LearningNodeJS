@@ -17,6 +17,7 @@ var Mustache;
   }
 }((function () {
 
+  // Create an exports object
   var exports = {};
 
   exports.name = "mustache.js";
@@ -27,6 +28,7 @@ var Mustache;
   exports.Context = Context;
   exports.Writer = Writer;
 
+  // Define some string comparison constants 
   var whiteRe = /\s*/;
   var spaceRe = /\s+/;
   var nonSpaceRe = /\S/;
@@ -52,6 +54,7 @@ var Mustache;
     return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
   }
 
+  // Map characters to html code
   var entityMap = {
     "&": "&amp;",
     "<": "&lt;",

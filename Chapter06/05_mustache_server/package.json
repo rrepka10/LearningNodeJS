@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "async": "2.x"
+    "async": "2.x",
+    "mustache": "^4.2.0"
   }
 }

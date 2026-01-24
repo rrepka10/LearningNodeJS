@@ -2,6 +2,7 @@
 Chapter05/node_modules/
 Chapter05/package-lock.json
 Chapter06/copy_of_01_simple_stream.js
+Chapter06/05_mustache_server/package-lock.json
 
 node_modules/
 .DS_Store
