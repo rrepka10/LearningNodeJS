@@ -1,21 +1,22 @@
 // This demonstrated using Mustache to build a client/server website 
 
 // Browser Tests:
-// http://localhost:8080/albums.json                    Displays the album JSON list
-// http://localhost:8080/albums/italy2012.json          Displays the italy JSON image list
-// http://localhost:8080/pages/home                     Displays a nice album menu
-
-// http://localhost:8080/pages/album/japan      Should graphically display the image 
-// http://localhost:8080/albums/japan2010/picture_001.jpg
+// http://localhost:8080/albums.json                        Displays the album JSON list
+// http://localhost:8080/albums/italy2012.json              Displays the italy JSON image list
+// http://localhost:8080/pages/home                         Displays a nice album menu
+// http://localhost:8080/pages/album/japan2010                  Graphically displays all the album images
+// http://localhost:8080/albums/japan2010/picture_001.jpg   Displays a specific image 
 
 // npm install --save mustache
+// Note: This used url.parse() which has been deprecated.  Using URL instead
+
 
 
 var http = require('http'),
     async = require('async'),
     path = require("path"),
-    fs = require('fs'),
-    url = require('url');
+    fs = require('fs');
+//    url = require('url');
 
 // Open the requested file and send it back 
 function serve_static_file(file, res) {
@@ -188,7 +189,13 @@ function serve_page(req, res) {
 function handle_incoming_request(req, res) {
     // parse the query params into an object and get the path
     // without them. (2nd param true = parse the params).
+/*
     req.parsed_url = url.parse(req.url, true);
+    console.log("Original parsed:", req.parsed_url);
+*/ 
+    req.parsed_url = new URL(req.url, `http://${req.headers.host}/`);
+    req.parsed_url.query = {};
+ 
     var core_url = req.parsed_url.pathname;
     console.log("Handle incomming request", core_url);
 
@@ -204,12 +211,11 @@ function handle_incoming_request(req, res) {
     } else if (core_url.substr(0, 7) == '/albums'
                && core_url.substr(core_url.length - 5) == '.json') {
         handle_get_album(req, res);
-    } else if (core_url.substr(0, 7) == '/albums'
+    }  else if (core_url.substr(0, 7) == '/albums'
                && core_url.substr(core_url.length - 4) == '.jpg') {
         console.log("Handle jpg image");
-        serve_static_file("albums/italy2012/picture_01.jpg", res);
-        //handle_get_image(req, res);
-    }
+        serve_static_file("albums/" + core_url.substring(8), res);
+    } 
     else {
         send_failure(res, 404, invalid_resource());
     }
@@ -236,6 +242,9 @@ function handle_get_album(req, res) {
     var getp = get_query_params(req);
     var page_num = getp.page ? getp.page : 0;
     var page_size = getp.page_size ? getp.page_size : 1000;
+
+    console.log("album name:", album_name, "getp:", getp, "page num:", page_num, "page_size:", page_size);
+
 
     if (isNaN(parseInt(page_num))) page_num = 0;
     if (isNaN(parseInt(page_size))) page_size = 1000;
@@ -285,6 +294,7 @@ function get_template_name(req) {
 }
 
 function get_query_params(req) {
+    console.log("get query parms:", req.parsed_url.query);
     return req.parsed_url.query;
 }
 
