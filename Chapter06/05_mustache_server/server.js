@@ -168,6 +168,7 @@ function load_album(album_name, page, page_size, callback) {
 function serve_page(req, res) {
     var page = get_page_name(req);
     console.log("Serve basic.html");
+	
     // Read the skeleton HTML file
     fs.readFile('basic.html', (err, contents) => {
         if (err) {

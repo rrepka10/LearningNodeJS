@@ -1,3 +1,5 @@
+// home client side app 
+
 $(function(){
  
     var tmpl,   // Main template HTML
