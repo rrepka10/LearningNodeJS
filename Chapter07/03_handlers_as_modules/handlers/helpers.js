@@ -1,4 +1,6 @@
+// General helper functions for albums and pages
 
+// Always set a version for a module
 exports.version = '0.1.0';
 
 
