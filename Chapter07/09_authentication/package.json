@@ -5,11 +5,11 @@
     "private": true,
     "dependencies": {
         "body-parser": "1.x",
-        "cookie-parser": "1.x",
+        "cookie-parser": "^1.4.7",
         "express": "4.x",
         "express-flash": "0.x",
         "express-session": "1.x",
-        "passport" : "0.3.x",
+        "passport": "0.3.x",
         "passport-local": "1.x"
     }
 }

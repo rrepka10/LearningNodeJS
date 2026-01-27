@@ -1,3 +1,10 @@
+// This demonstrated authentication 
+
+// Browser testing:
+// http://localhost:8080/               - Bring up login page
+// http://localhost:8080/login          - Display login form
+
+// npm install cookie-parser
 
 var express = require('express'),
     cookieParser = require('cookie-parser'),
@@ -9,6 +16,7 @@ var express = require('express'),
 
 var app = express();
 
+// Configure security
 var session_configuration = {
     secret: 'whoopity whoopity whoop whoop',
     resave: false,
@@ -24,16 +32,20 @@ app.use(cookieParser('whoopity whoopity whoop whoop'));
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+// The list of valid users 
 var users = {
     "id123456" :  { id: 123456, username: "marcwan", password: "boo" },
     "id1" : { id: 1, username: "admin", password: "admin" }
 };
 
+
+// Check for authentication
 function authenticatedOrNot(req, res, next){
     if(req.isAuthenticated()){
+        // Yes, so go to the next step
         next();
     }else{
+        // No, restart
         res.redirect("/login");
     }
 }
@@ -49,15 +61,23 @@ app.use(bodyParser.json())
 passport.use(new LocalStrategy(
     function(username, password, done) {
         setTimeout(function () {
+        // Process all the users
         for (userid in users) {
             var user = users[userid];
-            console.log(user);
+            console.log("Processing:", user);
+
+            // Does the username match
             if (user.username.toLowerCase() == username.toLowerCase()) {
+                // YEs, check the password
                 if (user.password == password) {
+                    // Success, return the user info
+                    console.log("PW success");
                     return done(null, user);
                 }
             }
         }
+
+        // User not found
         return done(null, false, { message: 'Incorrect credentials.' });
             }, 1000);
     }
@@ -79,15 +99,19 @@ passport.deserializeUser(function(userid, done) {
     }
 });
 
+
+// Root entry, put up a login here page
 app.get('/', function(req, res) {
     console.log(req.flash());
     res.send('<a href="/login">Login Here</a>');
 });
 
+// Login html
 app.get("/login", function (req, res) {
 
     var error = req.flash("error");
 
+    // Build the login html form
     var form = '<form action="/login" method="post">' +
         '    <div>' +
         '        <label>Username:</label>' +
@@ -102,7 +126,9 @@ app.get("/login", function (req, res) {
         '    </div>' +
         '</form>';
 
+    // Was the login successful?
     if (error && error.length) {
+        // No, putup a red "Incorrect credentials"
         form = "<b style='color: red'> " + error[0] + "</b><br/>" + form;
     }
 
