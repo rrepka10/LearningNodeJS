@@ -1,13 +1,7 @@
 # Ignore the node files
-#Chapter05/node_modules/
-#Chapter05/package-lock.json
+
 Chapter06/copy_of_01_simple_stream.js
-#Chapter06/05_mustache_server/package-lock.json
-#Chapter05/package-lock.json
-#Chapter07/package-lock.json
-#Chapter07/01_trivial_express/package-lock.json
-#Chapter07/02_basic_routing/package-lock.json
-#Chapter07/03_handlers_as_modules/package-lock.json
+Chapter07/06_body_parsing/ul/*
 
 node_modules/
 package-lock.json

@@ -1,4 +1,10 @@
-// to test: 
+// Demonstrates parsing json using middleware 
+
+// npm install morgan
+
+// to test (Windows): 
+// curl -d "{\"album\":{\"new_name\":\"italy2011\"}}" -H "Content-Type: application/json" localhost:8080
+// Linux:
 // curl -d '{"album":{"new_name":"italy2011"}}' -H "Content-Type: application/json" localhost:8080
 
 var express = require('express'),
@@ -11,11 +17,12 @@ var app = express()
 
     // parse application/x-www-form-urlencoded
     app.use(bodyParser.urlencoded({ extended: false }))
+
     // parse application/json
     app.use(bodyParser.json())
     .use(function(req, res){
-        console.log(req.body);
-        res.end('want to update album name to '
+        console.log("Req.body:", req.body);
+        res.end('want to update album name to: '
                 + req.body.album.new_name + "\n");
     })
     .listen(8080);
