@@ -15,6 +15,7 @@ Added missing album content
 Added image preview to Chapter06\05_mustache_server
 Created a better formidable example in Chapter07\06_body_parsing
 Chapter07\08_compression - no proof compression works - not fixed
+Chapter07\09_authentication - added logout 
 
 
 
