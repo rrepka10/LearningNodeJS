@@ -4,6 +4,7 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
+        "bcrypt": "^6.0.0",
         "body-parser": "1.x",
         "cookie-parser": "^1.4.7",
         "express": "4.x",

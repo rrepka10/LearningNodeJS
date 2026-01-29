@@ -1,8 +1,12 @@
 // This demonstrated authentication 
-
+// flash messages generate deprecation warning 
+// user/pw  admin  admin
+// 
 // Browser testing:
 // http://localhost:8080/               - Bring up login page
 // http://localhost:8080/login          - Display login form
+// http://localhost:8080/members        - Displays the members only area (after login)
+//                                        otherwise displays the login form
 
 // npm install cookie-parser
 
@@ -10,27 +14,37 @@ var express = require('express'),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
     passport = require("passport"),
-    LocalStrategy = require('passport-local').Strategy,
+    LocalStrategy = require('passport-local').Strategy, // define the local strategy
     bodyParser = require('body-parser'),
-    flash = require('express-flash');
-
+    flash = require('express-flash');       // For flash messages stored in session
+   
+    
 var app = express();
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 
 // Configure security
 var session_configuration = {
     secret: 'whoopity whoopity whoop whoop',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false, // set true behind HTTPS/Proxy
+      maxAge: 1000 * 60 * 60, // 1 hour
+    },
 };
-
-session_configuration.cookie.secure = false;
-
-app.use(flash());
 app.use(session(session_configuration));
-app.use(cookieParser('whoopity whoopity whoop whoop'));
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(flash());
 
 // The list of valid users 
 var users = {
@@ -39,7 +53,7 @@ var users = {
 };
 
 
-// Check for authentication
+// Check for authentication - class
 function authenticatedOrNot(req, res, next){
     if(req.isAuthenticated()){
         // Yes, so go to the next step
@@ -50,25 +64,18 @@ function authenticatedOrNot(req, res, next){
     }
 }
 
-
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse application/json
-app.use(bodyParser.json())
-
-
-passport.use(new LocalStrategy(
-    function(username, password, done) {
-        setTimeout(function () {
+// Passport Local Strategy
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
         // Process all the users
         for (userid in users) {
             var user = users[userid];
-            console.log("Processing:", user);
+            // console.log("Processing:", user);
 
             // Does the username match
             if (user.username.toLowerCase() == username.toLowerCase()) {
-                // YEs, check the password
+                // Yes, check the password
                 if (user.password == password) {
                     // Success, return the user info
                     console.log("PW success");
@@ -77,13 +84,19 @@ passport.use(new LocalStrategy(
             }
         }
 
-        // User not found
-        return done(null, false, { message: 'Incorrect credentials.' });
-            }, 1000);
+    // No user found or password incorrect, not an "nodejs error"
+    return done(null, false, { message: 'Invalid password' });
+    } catch (err) {
+        // Node js error
+        return done(err);
     }
-));
+  })
+);
 
+
+// Configure Passport authenticated session persistence.
 passport.serializeUser(function(user, done) {
+    // Value to serialize and store in session
     if (users["id" + user.id]) {
         done(null, "id" + user.id);
     } else {
@@ -91,7 +104,9 @@ passport.serializeUser(function(user, done) {
     }
 });
 
+// Deserialize the user from the stored session data
 passport.deserializeUser(function(userid, done) {
+    // Get user data from the serialized id
     if (users[userid]) {
         done(null, users[userid]);
     } else {
@@ -100,15 +115,15 @@ passport.deserializeUser(function(userid, done) {
 });
 
 
-// Root entry, put up a login here page
-app.get('/', function(req, res) {
-    console.log(req.flash());
-    res.send('<a href="/login">Login Here</a>');
-});
-
 // Login html
 app.get("/login", function (req, res) {
+    if ( !req.isAuthenticated() ) {
+        console.log("Login: Not authenticated");
+    } else {
+        console.log("Login: Authenticated ");
+    }
 
+    // Set the flash message
     var error = req.flash("error");
 
     // Build the login html form
@@ -128,23 +143,75 @@ app.get("/login", function (req, res) {
 
     // Was the login successful?
     if (error && error.length) {
-        // No, putup a red "Incorrect credentials"
+        // No, put up a red "Incorrect credentials"
         form = "<b style='color: red'> " + error[0] + "</b><br/>" + form;
     }
 
     res.send(form);
 });
 
+// Process the login form, set a success flash message, allow
+// a failure flash message
 app.post("/login",
          passport.authenticate('local', { successRedirect: '/members',
                                           failureRedirect: '/login',
-                                          successFlash: { message: "welcome back" },
+                                          successFlash: { message: "Welcome back" },
                                           failureFlash: true })
         );
 
 
-app.get("/members", authenticatedOrNot, function (req, res) {
-    res.send("secret members only area!");
+app.get('/members', authenticatedOrNot, (req, res) => {
+     if ( !req.isAuthenticated() ) {
+        console.log("Members: authenticated");
+    } else {
+        console.log("Members: Authenticated ");
+    }
+  res.send(`Hello, ${req.user.username}! <form method="POST" action="/logout"><button>Logout</button></form>`);
+});
+
+// Logout (Passport 0.6+)
+app.post('/logout', (req, res, next) => {
+     if ( !req.isAuthenticated() ) {
+        console.log("Logout 1: Not authenticated");
+    } else {
+        console.log("Logout 1: Authenticated ");
+    }
+ 
+    // Do the logout
+    req.logout(err => {
+        console.log("req.logout error");   
+        if (err) {
+            console.log("err:", err);      
+            return next(err);
+        }
+
+    // Optionally destroy the session and clear the cookie, this does not work
+    req.session.destroy(() => {
+        console.log("Session destroy & cookie clear");   
+        res.clearCookie('connect.sid');
+        res.redirect('/');
+        });
+    });
+
+    if ( !req.isAuthenticated() ) {
+        console.log("Logout 2: Not authenticated");
+    } else {
+        console.log("Logout 2: Authenticated ");
+    }
+
+    res.redirect('/'); 
+});
+
+
+// Root entry, put up a login here page
+app.get('/', function(req, res) {
+    if ( !req.isAuthenticated() ) {
+        console.log("Root page: Not authenticated");
+    } else {
+        console.log("Root page: Authenticated ");
+    }
+
+    res.send('<a href="/login">Login Here</a>');
 });
 
 
