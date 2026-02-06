@@ -1,95 +1,100 @@
-// testdb & users using await features
-// client = testdb, collection = users
-// works 
+// This fully replaces the book test.js as it doesn't compile or run
 
-//import { MongoClient } from "mongodb";
-//import mongoose from  'mongoose';
+// This uses the async waterfall pattern to perform a series of
+// MongoDB operations in sequence, passing results from one to the next.
 
-const { MongoClient } = require("mongodb");
+// This inserts 3 documents, updates one, and deletes another
+// The results is a Jane Doe and Jane3 in the collection. Jane2 is deleted
+
+// Works
+
+const { MongoClient } = require('mongodb');
 const mongoose = require('mongoose');
+const async = require('async');
 
-const uri = "mongodb://127.0.0.1:27017"; // or your Atlas URI
+const uri = 'mongodb://127.0.0.1:27017';
 const client = new MongoClient(uri);
 
-const dbName = 'testdb';
+const dbName = 'waterfallDB';
 const collectionName = 'users';
 
-/*
-mongoose.set('debug', function (collectionName, method, query, doc, options) {
-  //const ts = new Date().toISOString();
+async.waterfall(
+  [
+    // 1) Connect to Mongo
+    function connect(cb) {
+      console.log('Connecting to MongoDB...');
+      MongoClient.connect(uri, )    
+        .then(client => cb(null, client))
+        .catch(err => cb(err));
+    },
+
+    // 2) Get DB + collection
+    function getCollection(client, cb) {
+      console.log(`Getting ${dbName} DB and ${collectionName} client`);
+      const db = client.db(dbName);
+      const coll = db.collection(collectionName);
+      cb(null, client, coll);     // Parameters must must be passed to the next function
+      },
+
+    // 3) Insert a document 1
+    function insertDoc(client, coll, cb) {
+      console.log('Inserting Jane...');
+      const doc = { email: 'jane@example.com', name: 'Jane', createdAt: new Date() };
+      coll.insertOne(doc)
+        .then(result => cb(null, client, coll))  // Pass parameters to the next function
+        .catch(err => cb(err));
+    },
+
+    // 4) The previous stage must call back with the correct parameters
+    // Insert document 2
+    function insertDoc(client, coll, cb) {
+       console.log('Inserting Jane2...');
+       const doc = { email: 'jane2@example.com', name: 'Jane2', createdAt: new Date() };
+       coll.insertOne(doc)
+        .then(result => cb(null, client, coll))
+        .catch(err => cb(err));
+    },
+
+    // 4) The previous stage must call back with the correct parameters
+    // Insert document 3
+    function insertDoc(client, coll, cb) {
+       console.log('Inserting Jane3...');
+       const doc = { email: 'jane3@example.com', name: 'Jane3', createdAt: new Date() };
+       coll.insertOne(doc)
+        .then(result => cb(null, client, coll))
+        .catch(err => cb(err));
+    },
+
+    // 5) Update Jane with a new name
+    function updateDoc(client, coll,  cb) {
+      console.log('Updating Jane to Jane Doe...');
+      coll.updateOne({ name: "Jane" }, { $set: { name: 'Jane Doe' } })
+        .then(() => cb(null, client, coll))
+        .catch(err => cb(err));
+    },
+
   
-  //console.log(`[${ts}] Mongoose ${collectionName}.${method}`, {
-    console.log(`Mongoose ${collectionName}.${method}`, {
-	method,
-    query,
-    doc,
-    options
-  });
-});
-*/
+    // 6) Delete Jane 2
+    function deleteDoc(client, coll, cb) {
+        coll.deleteOne({ name: "Jane2" })
+        .then(res => cb(null, client, res.deletedCount))
+        .catch(err => cb(err));
+    }
+  ],
 
-async function run() {
-  try {
-    // Connect to MongoDB
-    console.log("Using mongo: client = testdb, collection = users");
-    await client.connect();
-    
-    // Select DB + Collection
-    const db = client.db(dbName);
-    const users = db.collection(collectionName);
-    console.log(`Connected to MongoDB as ${dbName} - $(collectionName}`);
+  // Final callback
+  function (err, client) {
+    // Always attempt to close the client if it exists
+    console.log('In final callback');
+    if (client) {
+      console.log('Closing MongoDB connection');
+      client.close();
+    }
 
-    // Insert a document
-    var result = await users.insertOne({
-      name: "Alice",
-      age: 30,
-      createdAt: new Date()
-    });
-
-    console.log("Inserted ID:", result.insertedId);
-
-      result = await users.insertOne({
-      name: "Sue",
-      age: 14,
-      createdAt: new Date()
-    });
-
-    console.log("Inserted ID:", result.insertedId);
-
-    result = await users.insertOne({
-      name: "Kathy",
-      age: 66,
-      createdAt: new Date()
-    });
-    
-    console.log("Inserted ID:", result.insertedId);
-
-    // Query a document
-    var user = await users.findOne({ name: "Alice" });
-    console.log("Found user 1:", user);
-    user = await users.findOne({ name: "Sue" });
-    console.log("Found user 2:", user);
-
-    // Update a document
-    await users.updateOne(
-      { name: "Alice" },
-      { $set: { age: 69 } }
-    );
-    console.log("Updated Alice");
-
-    // Delete a document
-    await users.deleteOne({ name: "Sue" });
-    console.log("Deleted Sue");
-
-    // List all docs
-    const all = await users.find().toArray();
-    console.log("All users:", all);
-
-  } catch (err) {
-    console.error(err);
-  } finally {
-    await client.close();
+    if (err) {
+      console.error('Waterfall error:', err);
+      process.exitCode = 1;
+      return;
+    }
   }
-}
-
-run();
+);
