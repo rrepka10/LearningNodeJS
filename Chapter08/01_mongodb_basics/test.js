@@ -1,68 +1,95 @@
-var Db = require('mongodb').Db,
-    Connection = require('mongodb').Connection,
-    Server = require('mongodb').Server,
-    Binary = require('mongodb').Binary;
-    async = require('async');
+// testdb & users using await features
+// client = testdb, collection = users
+// works 
 
-var host = process.env['MONGO_NODE_DRIVER_HOST'] != null ? process.env['MONGO_NODE_DRIVER_HOST'] : 'localhost';
-var port = process.env['MONGO_NODE_DRIVER_PORT'] != null ? process.env['MONGO_NODE_DRIVER_PORT'] : Connection.DEFAULT_PORT;
+//import { MongoClient } from "mongodb";
+//import mongoose from  'mongoose';
 
+const { MongoClient } = require("mongodb");
+const mongoose = require('mongoose');
 
-var db = new Db('Test', 
-                new Server(host, port, 
-                           { auto_reconnect: true,
-                             poolSize: 20}),
-                { w: 1 });
+const uri = "mongodb://127.0.0.1:27017"; // or your Atlas URI
+const client = new MongoClient(uri);
 
-var testcoll
+const dbName = 'testdb';
+const collectionName = 'users';
 
+/*
+mongoose.set('debug', function (collectionName, method, query, doc, options) {
+  //const ts = new Date().toISOString();
+  
+  //console.log(`[${ts}] Mongoose ${collectionName}.${method}`, {
+    console.log(`Mongoose ${collectionName}.${method}`, {
+	method,
+    query,
+    doc,
+    options
+  });
+});
+*/
 
-/**
- * Don't forget that for waterfall, it will stop and call the final
- * "cleanup" function whenever it sees an error has been passed to 
- * one of the callback functions.
- *
- * Also, if a parameter is given to the callback, it will include
- * those in the next function called in the waterfall.
- */
-async.waterfall([
+async function run() {
+  try {
+    // Connect to MongoDB
+    console.log("Using mongo: client = testdb, collection = users");
+    await client.connect();
+    
+    // Select DB + Collection
+    const db = client.db(dbName);
+    const users = db.collection(collectionName);
+    console.log(`Connected to MongoDB as ${dbName} - $(collectionName}`);
 
-    // 1. open database connection
-    function (cb) {
-        console.log("\n** 1. open db");
-        db.open(cb);
-    },
+    // Insert a document
+    var result = await users.insertOne({
+      name: "Alice",
+      age: 30,
+      createdAt: new Date()
+    });
 
-    // 2. create collections for our albums and photos
-    function (db, cb) {
-        console.log("\n** 2. create albums and photos collections.");
-        db.createCollection("testcoll", cb);
-    },
+    console.log("Inserted ID:", result.insertedId);
 
-    function (testc, cb) {
-        testcoll = testc;
-        testcoll.insert(
-            { _id: "test",
-                    data: new Binary(new Buffer("asdf")) },
-            { safe: true },
-            cb);
-    },
+      result = await users.insertOne({
+      name: "Sue",
+      age: 14,
+      createdAt: new Date()
+    });
 
-    function (data, cb) {
-        console.log("INSERTED: ");
-        console.log(data);
-        cb(null);
-    },
+    console.log("Inserted ID:", result.insertedId);
 
-    function (cb) {
-        testcoll.find({ _id: "test" }).toArray(function (err, res) {
-            console.log(err);
-            console.log(res);
-            });
-    }
-                    ],
+    result = await users.insertOne({
+      name: "Kathy",
+      age: 66,
+      createdAt: new Date()
+    });
+    
+    console.log("Inserted ID:", result.insertedId);
 
-    function (err, results) {
-        console.log("ERR??:" + JSON.stringify(err));
-    }
-);
+    // Query a document
+    var user = await users.findOne({ name: "Alice" });
+    console.log("Found user 1:", user);
+    user = await users.findOne({ name: "Sue" });
+    console.log("Found user 2:", user);
+
+    // Update a document
+    await users.updateOne(
+      { name: "Alice" },
+      { $set: { age: 69 } }
+    );
+    console.log("Updated Alice");
+
+    // Delete a document
+    await users.deleteOne({ name: "Sue" });
+    console.log("Deleted Sue");
+
+    // List all docs
+    const all = await users.find().toArray();
+    console.log("All users:", all);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await client.close();
+  }
+}
+
+run();

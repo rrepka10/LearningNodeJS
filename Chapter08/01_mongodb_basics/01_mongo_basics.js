@@ -1,11 +1,39 @@
+b // This demonstratest basic MongoDB operations
+
+// Install the Mongodb.com Compass Community edition as a service
+// create a DB called: photosharingapp   and with a collection name of: students
+
+// hangs on connect operation
+
+// npm install async
+// npm install mongodb
+
 var MongoClient = require('mongodb').MongoClient,
     async = require('async');
+const mongoose = require('mongoose');
 
 // Connection URL
+//var url = 'mongodb://localhost:27017';
 var url = 'mongodb://localhost:27017/photosharingapp';
+
+//const client = new MongoClient(url);
 
 var db;
 var albums, photos;
+
+// console.log("Mongoose variabe:", mongoose); 
+
+mongoose.set('debug', function (collectionName, method, query, doc, options) {
+  //const ts = new Date().toISOString();
+  
+  //console.log(`[${ts}] Mongoose ${collectionName}.${method}`, {
+    console.log(`Mongoose ${collectionName}.${method}`, {
+	method,
+    query,
+    doc,
+    options
+  });
+});
 
 
 /**
@@ -20,6 +48,7 @@ async.waterfall([
     function (cb) {
         console.log("1. ------- connect --");
         // Use connect method to connect to the Server
+        
         MongoClient.connect(url, {
                                 db: {
                                     w: 1
@@ -35,6 +64,8 @@ async.waterfall([
                                 cb(null);
                             });
     },
+
+
     // 2. create collections for our albums and photos
     function (cb) {
         console.log("\n** 2. create albums and photos collections.");

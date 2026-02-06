@@ -2,6 +2,7 @@
 // versys using a waterfall model.  The waterfall model takes
 // an array of functions to run.  The results are passed 
 // from one function to the next
+// This reads data from reading test.txt
 
 
 // npm install --save async
@@ -11,6 +12,7 @@ var async = require('async');
 
 // Typical call back model, note the indent levels
 function load_file_contents(path, callback) {
+	console.log("Tradational code");
     // Try to open the file
     fs.open(path, 'r', (err, f) => {
         if (err) {
@@ -68,21 +70,25 @@ function load_file_contents(path, callback) {
 // Use a waterfall function to read files 
 // note, no indent
 function load_file_contents2(path, callback) {
+	console.log("Waterfall code");
     var f;
     // Pass an array of functions to call
+	// cb contains the returned data from each stage 
     async.waterfall([
         function (cb) {             // cb stands for "callback"
-            fs.open(path, 'r', cb);
+            fs.open(path, 'r', cb);	// Returns a handle
         },
 
         // the handle was passed to the callback at the end of
         // the fs.open function call. async passes ALL params to us.
+		// Handle is passed in from the previous step
         function (handle, cb) {
             f = handle
-            fs.fstat(f, cb);
+            fs.fstat(f, cb);		// Returns a stat structure
         },
 
         // get the file type
+		// Stats are passed in from the previous step 
         function (stats, cb) {
             //var b = new Buffer(stats.size);
             var b = Buffer.alloc(stats.size);
@@ -96,7 +102,7 @@ function load_file_contents2(path, callback) {
             }
         },
 
-        //
+        // Bytes read and buffer are passed in.
         function (bytes_read, buffer, cb) {
             fs.close(f, function (err) {
                 if (err)
@@ -113,29 +119,34 @@ function load_file_contents2(path, callback) {
     });
 }
 
-
-
+/*
+// Call typical methods, reading test.txt
 load_file_contents(
     "test.txt", 
     function (err, contents) {
+		console.log("Results callback");
         if (err)
-            console.log("normal load:", err);
+            console.log("normal error:", err);
         else
-            console.log("normal load:", contents);
+            console.log("normal success:", contents);
     }
 );
+*/
 
+// Call waterfall, contents are returned in the callback 
 load_file_contents2(
     "test.txt", 
     function (err, contents) {
+		console.log("Results callback");
         if (err)
-            console.log("Waterfall load:",err);
+            console.log("Waterfall error:",err);
         else
-            console.log("Waterfall load:", contents);
+            console.log("Waterfall success:", contents);
     }
 );
 
 function make_error(err, msg) {
+	console.log("Make error msg");
     var e = new Error(msg);
     e.code = msg;
     return e;
