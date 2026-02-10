@@ -1,6 +1,6 @@
 // This is an example of async.series, each function is
-// independant and is executed in a serise.  The
-// results arereturned in a JSON array using "callback"
+// independant and is executed in a series.  The
+// results are returned in a JSON array using "callback"
 // Notice the data is returned in order
 
 var async = require("async");

@@ -1,28 +1,30 @@
-b // This demonstratest basic MongoDB operations
-
+// This demonstratest basic MongoDB operations
+// This fully replaces the book 01_mongo_basics.js as it doesn't run
 // Install the Mongodb.com Compass Community edition as a service
-// create a DB called: photosharingapp   and with a collection name of: students
+
+// create a DB called: photosharingapp and with collection names of: albums and photos
 
 // hangs on connect operation
 
 // npm install async
 // npm install mongodb
 
-var MongoClient = require('mongodb').MongoClient,
-    async = require('async');
+const { MongoClient } = require('mongodb');
+const async = require('async');
 const mongoose = require('mongoose');
 
 // Connection URL
-//var url = 'mongodb://localhost:27017';
-var url = 'mongodb://localhost:27017/photosharingapp';
+var url = 'mongodb://localhost:27017';
 
-//const client = new MongoClient(url);
+const dbName = 'photosharingapp';
+const albumcoll = 'albums';
+const photocoll = 'photos';
 
-var db;
+var db, client;
 var albums, photos;
 
-// console.log("Mongoose variabe:", mongoose); 
-
+/*
+// Set debug mode
 mongoose.set('debug', function (collectionName, method, query, doc, options) {
   //const ts = new Date().toISOString();
   
@@ -34,6 +36,7 @@ mongoose.set('debug', function (collectionName, method, query, doc, options) {
     options
   });
 });
+ */
 
 
 /**
@@ -45,83 +48,58 @@ mongoose.set('debug', function (collectionName, method, query, doc, options) {
  * those in the next function called in the waterfall.
  */
 async.waterfall([
-    function (cb) {
-        console.log("1. ------- connect --");
-        // Use connect method to connect to the Server
-        
-        MongoClient.connect(url, {
-                                db: {
-                                    w: 1
-                                },
-                                server: {
-                                    maxPoolSize: 200
-                                },
-                            },
-                            function(err, dbase) {
-                                if (err) return cb(err);
-                                console.log("Connected correctly to server");
-                                db = dbase;
-                                cb(null);
-                            });
-    },
+  function (cb) {
+    console.log("1. Connect - note: All album and photos clients \n  must be empty on the DB server");
+       
+    // Use connect method to connect to the Server
+    MongoClient.connect(url)  
+      .then(retclient => {client = retclient; cb(null)})
+      .catch(err => make_error(err, "Could not connect to MongoDB server"));
+  },
+
+  // Get DB + collection
+  function getCollection(cb) {
+    console.log(`2 Getting ${dbName} DB and ${albumcoll} & ${photocoll} client`);
+    db = client.db(dbName);
+      if (db == null) {cb(make_error(null, "Could not connect to client server"));}
+    albums = db.collection(albumcoll)
+      if (albums == null) {cb(make_error(null, "Could not connect to album client"));}
+    photos = db.collection(photocoll)
+      if (photos == null) {cb(make_error(null, "Could not connect to photo client"))};
+    cb(null);
+  },
+
+  // let's add some albums now
+  function (cb) {
+    var docs = [{ _id: "italy2012",
+                  name:"italy2012",
+                  title:"Spring Festival in Italy",
+                  date:"2012/02/15",
+                  description:"I went to Italy for Spring Festival."
+                },
+                { _id:"australia2010",
+                  name:"australia2010",
+                  title:"Vacation Down Under",
+                  date:"2010/10/20",
+                  description:"Visiting some friends in Oz!"
+                },
+                { _id:"japan2010",
+                  name:"japan2010",
+                  title:"Programming in Tokyo",
+                  date:"2010/06/10",
+                  description:"I worked in Tokyo for a while."
+                }];
+
+  console.log("3. Create albums.");
+  albums.insertMany(docs)
+    .then(result => cb(null))
+    .catch(err => cb(make_error(err, "Error inserting albums")));
+  },
 
 
-    // 2. create collections for our albums and photos
-    function (cb) {
-        console.log("\n** 2. create albums and photos collections.");
-        db.collection("albums", cb);
-    },
-
-    function (albums_coll, cb) {
-        albums = albums_coll;
-        db.collection("photos", cb);
-    },
-
-    // 3. verify that creating a new album w same name errors out
-    function (photos_coll, cb) {
-        console.log("\n** 3. verify can't re-create collection if strict.");
-        photos = photos_coll;
-        db.collection("albums", {strict: true}, function (err, results) {
-            if (err) {
-                console.log(JSON.stringify(err, 0, 2));
-                console.log("Got EXPECTED error re-creating albums.");
-                cb(null);
-                return;
-            }
-            cb({ error: "unexpected", message: "I didn't get an error."});
-        });
-    },
-
-    // 4. let's add some albums now
-    function (cb) {
-        var docs = [{ _id: "italy2012",
-                      name:"italy2012",
-                      title:"Spring Festival in Italy",
-                      date:"2012/02/15",
-                      description:"I went to Italy for Spring Festival."
-                    },
-                    { _id:"australia2010",
-                      name:"australia2010",
-                      title:"Vacation Down Under",
-                      date:"2010/10/20",
-                      description:"Visiting some friends in Oz!"
-                    },
-                    { _id:"japan2010",
-                      name:"japan2010",
-                      title:"Programming in Tokyo",
-                      date:"2010/06/10",
-                      description:"I worked in Tokyo for a while."
-                    }];
-
-        console.log("\n** 4. add albums.");
-        albums.insertMany(docs, { safe: true }, cb);
-    },
-
-    // 5. let's add some photos to albums
-    function (results, cb) {
-        console.log("added albums: ");
-
-        var pix = [
+  // let's add some photos 
+  function (cb) {
+    var pix = [
             { filename: "picture_01.jpg",
               albumid: "italy2012",
               description: "rome!",
@@ -142,7 +120,6 @@ async.waterfall([
               albumid: "italy2012",
               description: "spanish steps",
               date: "2012/02/18 16:20:40" },
-
             { filename: "photo_05.jpg",
               albumid: "japan2010",
               description: "something nice",
@@ -171,7 +148,6 @@ async.waterfall([
               albumid: "japan2010",
               description: "moo cow oink pig woo!!",
               date: "2010/06/15 12:55:40" },
-
             { filename: "photo_001.jpg",
               albumid: "australia2010",
               description: "sydney!",
@@ -198,112 +174,130 @@ async.waterfall([
               date: "2010/10/22 22:15:40" }
         ];
 
-        console.log("\n** 5. Add pictures.");
-        photos.insertMany(pix, { safe: true }, cb);
-    },
+  console.log("4. Add photos.");
+  photos.insertMany(pix)
+    .then(result => cb(null))
+    .catch(err => cb(make_error(err, "Error 207 inserting photos")));
+  },
 
-    function (results, cb) {
-        console.log("added photos to albums:");
 
-        // 6. list all albums
-        console.log("\n** 6. list albums.");
-        albums.find().toArray(cb);
-    },
+  // list all albums
+  function (cb) { 
+    console.log("5. get the album list.");
+    albums.find().toArray()
+      .then (data => cb(null, data))    // This will return an array of albums
+      .catch (err => cb(make_error(err, "Error 214 listing albums")));       
+  },
 
-    function (all_albums, cb) {
-        console.log("dumping albums:");
-        for (var i = 0; i < all_albums.length; i++) {
-            console.log("Album: " + all_albums[i].name
-                        + " (" + all_albums[i].date + ")");
-        }
-
-        // 7. find italy2012 album.
-        console.log("\n** 7. Find album.");
-        albums.find({ _id: "italy2012" }).toArray(cb);
-    },
-
-    function (italy2012, cb) {
-        console.log("fetching italy2012:");
-
-        // 8. find all photos in italy2012 album. sort by date,
-        //    and return subset
-        console.log("\n** 8. Photos for albums.");
-        photos.find({ albumid: "italy2012" })
+  // print the album list
+  function (all_albums, cb) {
+    console.log("  Display the albums:", all_albums.length);
+    all_albums.forEach(doc => console.log(doc));
+    cb(null);
+  },
+      
+  // find the italy2012 album in the photo list.
+  function (cb) {
+    console.log("6. Find italy2012 in the photo list.");
+    photos.find({ albumid: "italy2012" })
             .sort({ date: 1 })
             .limit(5)
             .skip(2)
-            .toArray(cb);
+            .toArray()
+      .then (data => cb(null, data))    // This will return an array of albums in the callback, 
+      .catch (err => cb(make_error(err, "Error 229 finding italy"))); 
+  },
+
+  // print the italy picture list
+  function (italy_photos, cb) {
+    console.log("  Display the albums:", italy_photos.length);
+    for (var i = 0; i < italy_photos.length; i++) {
+      console.log("  Album: " + italy_photos[i].filename
+                        + " (" + italy_photos[i].date + ")");
+      }
+    cb(null);
+  },
+
+
+  // replace the description in a photo
+  function (cb) {
+    console.log("7. update photo_03.jpgphoto.");
+    photos.updateOne({ filename: "photo_03.jpg", albumid: "japan2010" },
+                      { $set: { description: "NO SHINJUKU! BAD!" } },
+                      { safe: true })
+      .then (data => cb(null))    
+      .catch (err => cb(make_error(err, "Error updating photo_03.jpg")));       
+    },
+    
+  // delete a photo
+  function (cb) {
+    console.log("8. delete photo.");
+    photos.deleteOne({ filename: "photo_04.jpg", albumid: "japan2010" },
+                { safe: true })
+      .then (data => { console.log("   Deleted " + data.deletedCount + " photos.");
+        cb(null)}) 
+      .catch (err => cb(make_error(err, "Error deleting photo_04.jpg")));
     },
 
-    function (italy2012_photos, cb) {
-        console.log("searching for photos in italy2012:");
-        for (var i = 0; i < italy2012_photos.length; i++) {
-            console.log("Photo: " + italy2012_photos[i].filename
-                        + " (" + italy2012_photos[i].date + ")");
-        }
-
-
-        // 9. replace the description in a photo
-        console.log("\n** 9. update photo.");
-        photos.updateOne({ filename: "photo_03.jpg", albumid: "japan2010" },
-                         { $set: { description: "NO SHINJUKU! BAD!" } },
-                         { safe: true },
-                         cb);
+    // delete an entire album and its photos.
+    // delete album object.
+    function (cb) {
+      console.log("9. Delete entire australia2010 album.");
+      albums.deleteOne({ _id: "australia2010"}, { safe: true },)
+        .then (data => { console.log("   Deleted " + data.deletedCount + " albums.");
+        cb(null)}) 
+      .catch (err => cb(make_error(err, "Error deleting australia2010 album")));
     },
 
-    function (results, cb) {
-        console.log("Updated photo_03.jpg in Japan2010");
-
-        // 10. delete a photo
-        console.log("\n** 10. delete photo.");
-        photos.deleteOne({ filename: "photo_04.jpg", albumid: "japan2010" },
-                         { safe: true },
-                         cb);
+    // delete the photos in it.
+    function (cb) { 
+      photos.deleteMany({ albumid: "australia2010" }, { safe: true })
+        .then (data => { console.log("   Deleted " + data.deletedCount + " photos.");
+        cb(null)}) 
+        .catch (err => cb(make_error(err, "Error deleting all australia2010 photos")));                    
     },
 
-    function (number_deleted, cb) {
-        console.log("Deleted " + number_deleted + " photos.");
-
-        // 11. delete an entire album and its photos.
-        //  a. delete album object.
-        console.log("\n** 11. Delete entire album.");
-        albums.remove({ _id: "australia2010"},
-                      { safe: true },
-                      cb);
+    // ask for an album that doesn't exist.
+    function (cb) {
+      console.log("10. Search for non-existant album.");
+      albums.find({ _id: "france2014" }).toArray()
+        .then (data => {console.log("  " + data.length + " francs2014 albums found");
+          cb(null)})
+        .catch (err => cb(make_error(err, "Bad return from find france2014 album")));
     },
 
-    function (number_deleted, cb) {
-        console.log("Deleted " + number_deleted + " albums.");
+  function (cb) {
+    console.log("11 Tests complete, removing albums and photos");
+    photos.deleteMany({ }, { safe: true })
+      .then (data => {console.log("   Deleted " + data.deletedCount + " photos."); 
+        cb(null)}) 
+      .catch (err => cb(make_error(err, "Error deleting all photos")));
+  },
 
-        //  b. delete the photos in it.
-        photos.deleteMany({ albumid: "australia2010" },
-                          { safe: true },
-                          cb);
-    },
-
-    function (number_deleted, cb) {
-        console.log("Deleted " + number_deleted + " photos.");
-
-        // 12. ask for an album that doesn't exist.
-        console.log("\n** 12. Search for non-existant album.");
-        albums.find({ _id: "france2014" }).toArray(cb);
-    },
-
-    function (results, cb) {
-        console.log("Results of search for france2014:");
-        cb(null);
-    }
+   function (cb) {
+    albums.deleteMany({}, { safe: true })
+        .then (data => {console.log("   Deleted " + data.deletedCount + " albums.");
+        cb(null)}) 
+        .catch (err => cb(make_error(err, "Error deleting all albums")));
+  }
 ],
+
 // waterfall cleanup function
 function (err, results) {
     if (err) {
-        console.log("Aw, there was an error: ");
-        console.log(err);
+        console.log("There was an error: ", err);
     } else {
-        console.log("All operations completed without error.");
+        console.log("All operations completed.\n");
     }
 
-    db.close();
+    client.close();
 });
 
-
+// To create a personal error
+function make_error(err, msg) {
+	//console.log("Make error msg:", msg);
+  //console.log("Passed error msg:", err);
+    var e = new Error(msg);
+    e.code = msg;
+    return e;
+}  
