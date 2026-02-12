@@ -266,6 +266,7 @@ async.waterfall([
         .catch (err => cb(make_error(err, "Bad return from find france2014 album")));
     },
 
+    /*
   function (cb) {
     console.log("11 Tests complete, removing albums and photos");
     photos.deleteMany({ }, { safe: true })
@@ -279,7 +280,7 @@ async.waterfall([
         .then (data => {console.log("   Deleted " + data.deletedCount + " albums.");
         cb(null)}) 
         .catch (err => cb(make_error(err, "Error deleting all albums")));
-  }
+  }*/
 ],
 
 // waterfall cleanup function

@@ -1,3 +1,5 @@
+// Returns the current Java code line, like the C/C++ __LINE__ command
+
 function getCurrentLineNumber() {
   const err = new Error();
   const stackLines = err.stack.split('\n').slice(2); // Skip Error + getCurrentLineNumber

@@ -5,7 +5,8 @@ $(function(){
  
     // Initialise page
     var initPage = function() {
- 
+        console.log("app static content home.js Initialise page");
+
         // Load the HTML template
         $.get("/templates/home.html", function(d){
             tmpl = d;

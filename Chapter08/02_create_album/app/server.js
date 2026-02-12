@@ -39,9 +39,10 @@ app.get("/", (req, res) => {
     res.end();
 });
 
-app.get('*', four_oh_four);
+//app.get('*', four_oh_four);
 
 function four_oh_four(req, res) {
+    console.log("app server.js four_oh_four");
     res.writeHead(404, { "Content-Type" : "application/json" });
     res.end(JSON.stringify(helpers.invalid_resource()) + "\n");
 }

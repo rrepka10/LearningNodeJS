@@ -5,7 +5,8 @@ $(function(){
  
     // Initialise page
     var initPage = function() {
- 
+        console.log("app static content album.js initialise page");
+
         // get our album name.
         var re = "/pages/album/([a-zA-Z0-9_-]+)";
         var results = new RegExp(re).exec(window.location.href);
@@ -51,6 +52,7 @@ $(function(){
 
 
 function massage_album(d) {
+    console.log("app static content album.js message_album");
     if (d.error != null) return d;
     var obj = { photos: [] };
 
@@ -70,6 +72,7 @@ function massage_album(d) {
 
 
 $.urlParam = function(name){
+    console.log("app static content album.js .urlParm");
     var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(window.location.href);
     if (!results)
     { 
