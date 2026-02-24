@@ -24,9 +24,12 @@ User.prototype.password = null;
 User.prototype.first_seen_date = null;
 User.prototype.last_modified_date = null;
 User.prototype.deleted = false;
+
 User.prototype.check_password = function (pw, callback) {
-    bcrypt.compare(pw, this.password, callback);
+    console.log("PW:", pw, "this.pw:", this.password);
+    bcrypt.compare(pw, this.password, callback);    // rrepka
 };
+
 User.prototype.response_obj = function () {
     return {
         uuid: this.uuid,

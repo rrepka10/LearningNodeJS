@@ -1,12 +1,51 @@
+// Sample SQL - requires MySQL community version
+//    https://dev.mysql.com/downloads/mysql/  port 3306, xport 33060
+// Requires an .env file with the following:
+// Sample .env  ROOTPW=
+//              USERID=
+//              USERPW=
 
-var mysql = require('mysql'),
+// Useful commands for the SQL command line, you must create the SQL data base 
+// and tables 
+/*
+drop database if exists photoalbums;
+drop table if exists albums;
+
+create database photoalbums default character set utf8 default collate utf8_general_ci;
+use photoalbums;
+      
+show tables; 
+select * from albums;  - shows the contents of the table 
+
+CREATE TABLE IF NOT EXISTS albums
+( name VARCHAR(50) UNIQUE PRIMARY KEY,
+  title VARCHAR(225),
+  date VARCHAR(225),
+  description VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS photos
+( filename VARCHAR(225) UNIQUE PRIMARY KEY,
+  album_name VARCHAR(225),
+  description VARCHAR(255),
+  date VARCHAR(225)
+);
+
+*/ 
+
+var mysql = require('mysql2'),
     async = require('async');
+
+// Get our secrets from a .env file
+// Sample .env  ROOTPW=
+//              USERID=
+//              USERPW=
+require('dotenv').config();
 
 var host = "localhost";
 var database = "PhotoAlbums";
-var user = "root";
-var password = "secret";
-
+var user = process.env.USERID;
+var password = process.env.USERPW;
 
 /**
  * Don't forget that for waterfall, it will stop and call the final
@@ -38,36 +77,35 @@ async.waterfall([
     function (cb) {
         console.log("\n** 2. create albums.");
         dbpool.query(
-            "INSERT INTO Albums VALUES (?, ?, ?, ?)",
+            "INSERT IGNORE INTO Albums VALUES (?, ?, ?, ?)",
             [ "italy2012", "Spring Festival in Italy", "2012-02-15",
               "I went to Italy for Spring Festival" ],
             cb);
     },
 
-    function (results, fields, cb) {
-        console.log(arguments);
-        console.log(fields);
+    // Passing in dummy which evaluates to an anonymous function and 
+    // allowes the embedded cb call to pass null, otherwise it hangs
+    function (results, dummy, cb) {
+    //    console.log("type of:", typeof(dummy));
         console.log("\n** 2b. create albums.");
         dbpool.query(
-            "INSERT INTO Albums VALUES (?, ?, ?, ?)",
+            "INSERT IGNORE INTO Albums VALUES (?, ?, ?, ?)",
             [ "australia2010", "Vacation Down Under", "2010-10-20",
               "Spent some time in Australia visiting Friends" ],
             cb);
     },
 
-    function (results, fields, cb) {
-        console.log(fields);
+    function (results, dummy, cb) {
         console.log("\n** 2c. create albums.");
         dbpool.query(
-            "INSERT INTO Albums VALUES (?, ?, ?, ?)",
+            "INSERT IGNORE INTO Albums VALUES (?, ?, ?, ?)",
             [ "japan2010", "Programming in Tokyo", "2010/06/10",
               "I worked in Tokyo for a while." ],
             cb);
     },
 
     // 3. let's add some photos to albums
-    function (results, fields, cb) {
-        console.log(fields);
+    function (results, dummy, cb) {
         // mysql is cool with this date format.
         var pix = [
             { filename: "picture_01.jpg",
@@ -147,7 +185,7 @@ async.waterfall([
         ];
 
         var q = "\
-INSERT INTO Photos (filename, album_name, description, date) \
+INSERT IGNORE INTO Photos (filename, album_name, description, date) \
             VALUES (?, ?, ?, ?)";
 
         console.log("\n** 3. Add pictures.");
@@ -173,8 +211,7 @@ INSERT INTO Photos (filename, album_name, description, date) \
         dbpool.query("SELECT * FROM Albums ORDER BY date DESC", cb);
     },
 
-    function (rows, fields, cb) {
-        console.log(fields);
+    function (rows, dummy, cb) {
         console.log(" -> dumping albums:");
         for (var i = 0; i < rows.length; i++) {
             console.log(" -> Album: " + rows[i].name
@@ -189,8 +226,7 @@ INSERT INTO Photos (filename, album_name, description, date) \
             cb);
     },
 
-    function (rows, fields, cb) {
-        console.log(fields);
+    function (rows, dummy, cb) {
         console.log(" -> dumping italy2012:");
         for (var i = 0; i < rows.length; i++) {
             console.log(" -> Album: " + rows[i].name
@@ -207,8 +243,7 @@ SELECT * FROM Photos WHERE album_name = ?\
         dbpool.query(q, ["italy2012", 2, 5 ], cb);
     },
 
-    function (rows, fields, cb) {
-        console.log(fields);
+    function (rows, dummy, cb) {
         console.log(" -> dumping italy2012 photos:");
         for (var i = 0; i < rows.length; i++) {
             console.log("Photo: " + rows[i].filename
@@ -224,9 +259,8 @@ SELECT * FROM Photos WHERE album_name = ?\
             cb);
     },
 
-    function (results, fields, cb) {
-        console.log(fields);
-        console.log(results);
+    function (results, dummy, cb) {
+    //    console.log(results);
         console.log(" -> updated rows: " + results.affectedRows);
         if (results.affectedRows != 1) {
             cb(new Error("CRAP TEST 7 didn't affect 1 row!"));
@@ -241,9 +275,8 @@ SELECT * FROM Photos WHERE album_name = ?\
             cb);
     },
 
-    function (results, fields, cb) {
-        console.log(fields);
-        console.log(results);
+    function (results, dummy, cb) {
+    //    console.log(results);
         console.log(" -> deleted rows: " + results.affectedRows);
         if (results.affectedRows != 1) {
             cb(new Error("CRAP TEST 8 didn't affect 1 row!"));
@@ -259,10 +292,9 @@ SELECT * FROM Photos WHERE album_name = ?\
             cb);
     },
 
-    function (results, fields, cb) {
-        console.log(fields);
+    function (results, dummy, cb) {
         console.log(" -> delete photos rows: " + results.affectedRows);
-        console.log(results);
+     //   console.log(results);
 
         //  b. delete the album
         dbpool.query(
@@ -271,10 +303,9 @@ SELECT * FROM Photos WHERE album_name = ?\
             cb);
     },
 
-    function (results, fields, cb) {
-        console.log(fields);
+    function (results, dummy, cb) {
         console.log(" -> delete album rows: " + results.affectedRows);
-        console.log(results);
+    //    console.log(results);
 
         // 10. ask for an album that doesn't exist.
         console.log("\n** 10. Search for non-existant album.");
@@ -284,8 +315,7 @@ SELECT * FROM Photos WHERE album_name = ?\
             cb);
     },
 
-    function (rows, fields, cb) {
-        console.log(fields);
+    function (rows, dummy, cb) {
         console.log(" -> asked for bogus, got " + rows.length + " rows");
         cb(null);
     }

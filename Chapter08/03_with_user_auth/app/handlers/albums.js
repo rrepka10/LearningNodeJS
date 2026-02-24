@@ -142,8 +142,10 @@ exports.album_by_name = function (req, res) {
     ],
     function (err, results) {
         if (err) {
+            console.log("app handlers pages.js - album_by_name error ");																		
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
         } else if (!results) {
+           console.log("app handlers pages.js - results not valid");
             err = helpers.no_such_album();
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
 
@@ -157,11 +159,14 @@ exports.album_by_name = function (req, res) {
 
 
 exports.list_all = function (req, res) {
+   console.log("app handlers albums.js .list_all");
+    //                sort_field, sort_desc, skip, count, callback)												
     album_data.all_albums("date", true, 0, 25, function (err, results) {
         if (err) {
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
         } else {
             var out = [];
+           console.log("  results ", results)											  
             if (results) {
                 for (var i = 0; i < results.length; i++) {
                     out.push(new Album(results[i]).response_obj());
@@ -210,6 +215,7 @@ exports.photos_for_album = function(req, res) {
     ],
     function (err, results) {
         if (err) {
+           console.log("app handlers pages.js - photos error");																
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
             return;
         }
@@ -250,6 +256,7 @@ exports.add_photo_to_album = function (req, res) {
     ],
     function (err, p) {
         if (err) {
+            console.log("app handlers pages.js - add_photo error");																   
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
             return;
         }

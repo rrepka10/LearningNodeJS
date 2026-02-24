@@ -4,18 +4,19 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "async": "2.x",
-        "bcrypt": "0.x",
-        "body-parser": "1.x",
-        "cookie-parser": "1.x",
-        "express": "4.x",
-        "express-flash": "0.x",
-        "express-session": "1.x",
-        "mysql": "2.x",
-        "morgan": "1.x",
-        "multer": "1.x",
-        "node-uuid": "1.x",
-        "passport" : "0.3.x",
-        "passport-local": "1.x"
+        "async": "^3.2.6",
+        "bcrypt": "^6.0.0",
+        "body-parser": "^2.2.2",
+        "cookie-parser": "^1.4.7",
+        "express": "^5.2.1",
+        "express-flash": "^0.0.2",
+        "express-session": "^1.19.0",
+        "morgan": "^1.10.1",
+        "multer": "^2.0.2",
+        "mysql2": "^3.18.0",
+        "node-uuid": "^1.4.8",
+        "passport": "^0.7.0",
+        "passport-local": "^1.0.0",
+        "path": "^0.12.7"
     }
 }

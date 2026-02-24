@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
     res.end();
 });
 
-//app.get('*', four_oh_four);
+// app.get('*', four_oh_four);  // causes server error 
 
 function four_oh_four(req, res) {
     console.log("app server.js four_oh_four");

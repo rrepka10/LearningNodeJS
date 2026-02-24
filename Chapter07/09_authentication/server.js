@@ -5,6 +5,7 @@
 // Browser testing:
 // http://localhost:8080/               - Bring up login page
 // http://localhost:8080/login          - Display login form
+//										use admin  admin
 // http://localhost:8080/members        - Displays the members only area (after login)
 //                                        otherwise displays the login form
 

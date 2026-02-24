@@ -1,6 +1,17 @@
+//  
+//  http:\\localhost:8080                 - home
+//  http:\\localhost:8080/pages/register  - does not work
+//  http:\\localhost:8080/pages/login     - login page does not wokr 
+//  http:\\localhost:8080/pages/admin/add_album 
+//  http:\\localhost:8080/pages/admin/add_photo
 
 var express = require('express');
 var app = express();
+var cookieParser = require('cookie-parser');  // add to resove function error
+var cookieSession = require('cookie-session'); 
+var morgan = require('morgan');
+var bodyParser = require('body-parser');
+
 
 var db = require('./data/db.js'),
     album_hdlr = require('./handlers/albums.js'),
@@ -8,14 +19,20 @@ var db = require('./data/db.js'),
     user_hdlr = require('./handlers/users.js'),
     helpers = require('./handlers/helpers.js');
 
-app.use(express.logger('dev'));
-app.use(express.bodyParser({ keepExtensions: true }));
+//app.use(express.logger('dev'));  // not a function
+// app.use(morgan('dev'));  // disable performance monitoring 
+
+//app.use(express.bodyParser({ keepExtensions: true })); not a function
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false })); 
+
 app.use(express.static(__dirname + "/../static"));
-app.use(express.cookieParser("kitten on  keyboard"));
-app.use(express.cookieSession({
-    secret: "FLUFFY BUNNIES",
-    maxAge: 86400000
-}));
+
+//app.use(express.cookieParser("kitten on  keyboard")); // not a function error
+app.use(cookieParser("kitten on  keyboard")); 
+
+// app.use(express.cookieSession({secret: "FLUFFY BUNNIES", maxAge: 86400000})); // not a function error
+app.use(cookieSession({secret: "FLUFFY BUNNIES", secure: false, httpOnly: true, maxAge: 86400000}));
 
 app.get('/v1/albums.json', album_hdlr.list_all);
 app.get('/v1/albums/:album_name.json', album_hdlr.album_by_name);
@@ -43,15 +60,17 @@ app.get("/", function (req, res) {
     res.end();
 });
 
-app.get('*', four_oh_four);
+// app.get('*', four_oh_four);  // causes server error 
 
 function four_oh_four(req, res) {
+    console.log("app server.js four_oh_four");
     res.writeHead(404, { "Content-Type" : "application/json" });
     res.end(JSON.stringify(helpers.invalid_resource()) + "\n");
 }
 
 
 function requireAPILogin(req, res, next) {
+    console.log("app server.js requireAPILogin");
     // if they're using the API from the browser, then they'll be auth'd
     if (req.session && req.session.logged_in) {
         next();
@@ -77,6 +96,7 @@ function requireAPILogin(req, res, next) {
 
 
 function requirePageLogin(req, res, next) {
+    console.log("app server.js requirePageLogin");
     if (req.session && req.session.logged_in) {
         next();
     } else {
@@ -85,6 +105,7 @@ function requirePageLogin(req, res, next) {
 }
 
 function need_auth(req, res) {
+     console.log("app server.js need_auth");
     res.header('WWW-Authenticate',
                'Basic realm="Authorization required"');
     if (req.headers.authorization) {
@@ -100,6 +121,7 @@ function need_auth(req, res) {
 
 
 db.init(function (err, results) {
+    console.log("app server.js .init");
     if (err) {
         console.error("** FATAL ERROR ON STARTUP: ");
         console.error(err);

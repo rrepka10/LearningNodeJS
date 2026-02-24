@@ -45,6 +45,8 @@ exports.create_album = function (data, callback) {
                      + "albums/" + data.name, cb);
         }
     ], 
+
+    
     function (err, results) {
         // convert file errors to something we like.
         if (err) {
@@ -65,44 +67,63 @@ exports.create_album = function (data, callback) {
 
 
 exports.album_by_name = function (name, callback) {
+    console.log("app data album.js album_by_name", name);
+/*	  
     db.albums.find({ _id: name }).toArray(function (err, results) {
         if (err) {
+														
             callback(err);
             return;
-        }
+        }*/
+    db.albums.find({ _id: name }).toArray()
+        .then (results => {        	
+            console.log("  album found, num", results.lenght);
+            if (results.length == 0) {
+                callback(null, null);
+            } else if (results.length == 1) {
+                callback(null, results[0]);
+            } else {
+                console.error("More than one album named: " + name);
+                console.error(results);
+                callback(backhelp.db_error());
+            }
+        })
+        .catch (err => {
+            console.log("  could not find album", name);
+            callback(err);
+            return;
+            })			
+    };
 
-        if (results.length == 0) {
-            callback(null, null);
-        } else if (results.length == 1) {
-            callback(null, results[0]);
-        } else {
-            console.error("More than one album named: " + name);
-            console.error(results);
-            callback(backutils.db_error());
-        }
-    });
-};
 
 
 exports.photos_for_album = function (album_name, pn, ps, callback) {
     var sort = { date: -1 };
+	console.log("app data album.js photos_for_album", album_name);	
     db.photos.find({ albumid: album_name })
+	
         .skip(pn)
         .limit(ps)
         .sort("date")
-        .toArray(callback);
+        .toArray() //callback
+        .then (data => callback(null, data))
+        .catch (err => callback(err)); 											
 };
 
 
 
+// Return an array of albums				   
 exports.all_albums = function (sort_field, sort_desc, skip, count, callback) {
     var sort = {};
+	console.log("app data album.js all_albums");
     sort[sort_field] = sort_desc ? -1 : 1;
     db.albums.find()
         .sort(sort)
         .limit(count)
-        .skip(skip)
-        .toArray(callback);
+        .skip(skip)				  
+        .toArray() // callback
+		    .then (data => {console.log("Albums found", data), callback(null, data)})    // This will return an array of albums in the callback, 
+		    .catch (err => {console.log("  error: no albums found"); callback(err)}); 
 };
 
 
@@ -110,6 +131,7 @@ exports.all_albums = function (sort_field, sort_desc, skip, count, callback) {
 exports.add_photo = function (photo_data, path_to_photo, callback) {
     var final_photo;
     var base_fn = path.basename(path_to_photo).toLowerCase();
+	console.log("app data album.js add_photo");											
     async.waterfall([
         // validate data
         function (cb) {

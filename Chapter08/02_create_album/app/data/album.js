@@ -35,6 +35,8 @@ exports.create_album = function (data, callback) {
 
         // create the album in mongo.
         function (album_data, cb) {
+			// Clone album_data so we can add a new Element
+			// without changing the original 
             var write = JSON.parse(JSON.stringify(album_data));
             write._id = album_data.name;
 			console.log("app data album.js albums.insertOne");

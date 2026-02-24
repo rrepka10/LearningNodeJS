@@ -9,24 +9,39 @@ var async = require('async'),
 exports.version = "0.1.0";
 
 exports.user_by_uuid = function (uuid, callback) {
-    if (!uuid)
+    console.log("app data user.js .user_by_uuid");
+    if (!uuid) {
+        console.log("   missing uuid");
         callback(backhelp.missing_data("uuid"));
-    else
+    }
+    else {
+        console.log("   uuid:", uuid);
         user_by_field("user_uuid", uuid, callback);
+    }
 };
 
 exports.user_by_display_name = function (dn, callback) {
-    if (!dn)
+    console.log("app data user.js .user_by_display_name");
+    if (!dn) {
+        console.log("   missing display_name");
         callback(backhelp.missing_data("display_name"));
-    else
+    }
+    else {
+        console.log("   display_name:", dn);
         user_by_field("display_name", dn, callback);
+    }
 }
 
 exports.user_by_email_address = function (email, callback) {
-    if (!email)
+    console.log("app data user.js .user_by_email_address");
+    if (!email) {
+        console.log("   missing email address");
         callback(backhelp.missing_data("email"));
-    else
+    }
+    else {
+        console.log("   email_address:", email);
         user_by_field("email_address", email, callback);
+    }
 };
 
 
@@ -34,6 +49,7 @@ exports.register = function (email, display_name, password, callback) {
     async.waterfall([
         // validate ze params
         function (cb) {
+            console.log("app data user.js .register");
             if (!email || email.indexOf("@") == -1)
                 cb(backhelp.missing_data("email"));
             else if (!display_name)
@@ -67,6 +83,7 @@ exports.register = function (email, display_name, password, callback) {
             cb(null, results[0]);
         }
     ],
+
     function (err, user_data) {
         if (err) {
             if (err instanceof Error && err.code == 11000) 
@@ -82,17 +99,21 @@ exports.register = function (email, display_name, password, callback) {
 
 
 function user_by_field (field, value, callback) {
+    console.log("app data user.js user_by_field:", field, value);
     var o = {};
     o[field] = value;
 
     db.albums.find( o ).toArray(function (err, results) {
         if (err) {
+            console.error("  albums.find error");
             callback(err);
             return;
         }
         if (results.length == 0) {
+            console.error("  albums.find zero length");
             callback(null, null);
         } else if (results.length == 1) {
+            console.error("  albums.find one found");
             callback(null, results[0]);
         } else {
             console.error("More than one user matching field: " + value);

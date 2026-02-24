@@ -32,6 +32,7 @@ exports.create_album = function (data, callback) {
         },
 
         function (cb) {
+            console.log("app/data/albums.js insert");
             db.dbpool.query(
                 "INSERT INTO Albums VALUES (?, ?, ?, ?)",
                 [ data.name, data.title, data.date, data.description ],
@@ -72,6 +73,7 @@ exports.album_by_name = function (name, callback) {
         },
 
         function (cb) {
+            console.log("app/data/albums.js find ");
             db.dbpool.query(
                 "SELECT * FROM Albums WHERE name = ?",
                 [ name ],
@@ -101,6 +103,7 @@ exports.photos_for_album = function (album_name, skip, limit, callback) {
         },
 
         function (cb) {
+            console.log("app/data/albums.js photos");
             db.dbpool.query(
                 "SELECT * FROM Photos WHERE album_name = ? LIMIT ?, ?",
                 [ album_name, skip, limit ],
@@ -113,6 +116,7 @@ exports.photos_for_album = function (album_name, skip, limit, callback) {
 
 
 exports.all_albums = function (sort_by, desc, skip, count, callback) {
+    console.log("app/data/albums.js .all_albums");
     async.waterfall([
         function (cb) {
             db.dbpool.query(
@@ -149,6 +153,7 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
         },
 
         function (cb) {
+            console.log("app/data/albums.js insert photos");
             db.dbpool.query(
                 "INSERT INTO Photos VALUES (?, ?, ?, ?)",
                 [ photo_data.albumid, base_fn, photo_data.description,

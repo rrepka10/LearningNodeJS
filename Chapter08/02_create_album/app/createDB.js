@@ -1,18 +1,10 @@
-// This demonstratest basic MongoDB operations
-// This fully replaces the book 01_mongo_basics.js as it doesn't run
-// Install the Mongodb.com Compass Community edition as a service
-// The results of this data base are used in the next step
-
-// create a DB called: photosharingapp and with collection names of: albums and photos
-
-// hangs on connect operation
+// This populates the data base 
 
 // npm install async
 // npm install mongodb
 
 const { MongoClient } = require('mongodb');
 const async = require('async');
-const mongoose = require('mongoose');
 
 // Connection URL
 var url = 'mongodb://localhost:27017';
@@ -24,20 +16,6 @@ const photocoll = 'photos';
 var db, client;
 var albums, photos;
 
-/*
-// Set debug mode
-mongoose.set('debug', function (collectionName, method, query, doc, options) {
-  //const ts = new Date().toISOString();
-  
-  //console.log(`[${ts}] Mongoose ${collectionName}.${method}`, {
-    console.log(`Mongoose ${collectionName}.${method}`, {
-	method,
-    query,
-    doc,
-    options
-  });
-});
- */
 
 
 /**
@@ -50,7 +28,9 @@ mongoose.set('debug', function (collectionName, method, query, doc, options) {
  */
 async.waterfall([
   function (cb) {
-    console.log("1. Connect - note: All album and photos clients \n  must be empty on the DB server");
+    console.log("This creates the data base entries for the");
+    console.log("02_create_album and 03_with_user_auth apps.");
+    console.log("The albums and photos clients must be empty on the DB server");
        
     // Use connect method to connect to the Server
     MongoClient.connect(url)  
@@ -191,111 +171,8 @@ async.waterfall([
   photos.insertMany(pix)
     .then(result => cb(null))
     .catch(err => cb(make_error(err, "Error 207 inserting photos")));
-  },
+  }
 
-
-  // list all albums
-  function (cb) { 
-    console.log("5. get the album list.");
-    albums.find().toArray()
-      .then (data => cb(null, data))    // This will return an array of albums
-      .catch (err => cb(make_error(err, "Error 214 listing albums")));       
-  },
-
-  // print the album list
-  function (all_albums, cb) {
-    console.log("  Display the albums:", all_albums.length);
-    all_albums.forEach(doc => console.log(doc));
-    cb(null);
-  },
-      
-  // find the italy2012 album in the photo list.
-  function (cb) {
-    console.log("6. Find italy2012 in the photo list.");
-    photos.find({ albumid: "italy2012" })
-            .sort({ date: 1 })
-            .limit(5)
-            .skip(2)
-            .toArray()
-      .then (data => cb(null, data))    // This will return an array of albums in the callback, 
-      .catch (err => cb(make_error(err, "Error 229 finding italy"))); 
-  },
-
-  // print the italy picture list
-  function (italy_photos, cb) {
-    console.log("  Display the albums:", italy_photos.length);
-    for (var i = 0; i < italy_photos.length; i++) {
-      console.log("  Album: " + italy_photos[i].filename
-                        + " (" + italy_photos[i].date + ")");
-      }
-    cb(null);
-  },
-
-
-  // replace the description in a photo
-  function (cb) {
-    console.log("7. update photo_03.jpgphoto.");
-    photos.updateOne({ filename: "photo_03.jpg", albumid: "japan2010" },
-                      { $set: { description: "NO SHINJUKU! BAD!" } },
-                      { safe: true })
-      .then (data => cb(null))    
-      .catch (err => cb(make_error(err, "Error updating photo_03.jpg")));       
-    },
-    
-  // delete a photo
-  function (cb) {
-    console.log("8. delete photo.");
-    photos.deleteOne({ filename: "photo_04.jpg", albumid: "japan2010" },
-                { safe: true })
-      .then (data => { console.log("   Deleted " + data.deletedCount + " photos.");
-        cb(null)}) 
-      .catch (err => cb(make_error(err, "Error deleting photo_04.jpg")));
-    },
-
-    // delete an entire album and its photos.
-    // delete album object.
-    function (cb) {
-      console.log("9. Delete entire australia2010 album.");
-      albums.deleteOne({ _id: "australia2010"}, { safe: true },)
-        .then (data => { console.log("   Deleted " + data.deletedCount + " albums.");
-        cb(null)}) 
-      .catch (err => cb(make_error(err, "Error deleting australia2010 album")));
-    },
-
-    // delete the photos in it.
-    function (cb) { 
-      photos.deleteMany({ albumid: "australia2010" }, { safe: true })
-        .then (data => { console.log("   Deleted " + data.deletedCount + " photos.");
-        cb(null)}) 
-        .catch (err => cb(make_error(err, "Error deleting all australia2010 photos")));                    
-    },
-
-    // ask for an album that doesn't exist.
-    function (cb) {
-      console.log("10. Search for non-existant album.");
-      albums.find({ _id: "france2014" }).toArray()
-        .then (data => {console.log("  " + data.length + " francs2014 albums found");
-          cb(null)})
-        .catch (err => cb(make_error(err, "Bad return from find france2014 album")));
-    },
-
-    /* 
-  // Comment out this section to preserve the data base entrieis for the 
-  // 02_create_album.js 
-  function (cb) {
-    console.log("11 Tests complete, removing albums and photos");
-    photos.deleteMany({ }, { safe: true })
-      .then (data => {console.log("   Deleted " + data.deletedCount + " photos."); 
-        cb(null)}) 
-      .catch (err => cb(make_error(err, "Error deleting all photos")));
-  },
-
-   function (cb) {
-    albums.deleteMany({}, { safe: true })
-        .then (data => {console.log("   Deleted " + data.deletedCount + " albums.");
-        cb(null)}) 
-        .catch (err => cb(make_error(err, "Error deleting all albums")));
-  }*/
 ],
 
 // waterfall cleanup function

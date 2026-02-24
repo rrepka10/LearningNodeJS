@@ -1,0 +1,95 @@
+// transaction.js
+const { pool } = require('./db');
+const async = require('async');
+
+function renameUserTransactional(email, newName, done) {
+  let conn;
+
+  async.waterfall(
+    [
+      // 1) Get a dedicated connection
+      function getConnection(next) {
+		console.log("1 get connection");
+        pool.getConnection((err, connection) => {
+          if (err) return next(err);
+          conn = connection;
+          next(null);
+        });
+      },
+
+      // 2) Begin transaction
+      function begin(next) {
+		console.log("2 begin transaction");
+        conn.beginTransaction;  //was next
+		next(null);
+      },
+
+      // 3) Lock the row we want to update
+      function lockRow(next) {
+		console.log("3 lock row");			
+        conn.execute(
+          'SELECT id FROM users WHERE email = ? FOR UPDATE',
+          [email],
+          (err, rows) => {
+            if (err) return next(err);
+            if (!rows || rows.length === 0) {
+			  console.error('  User not found:', email);
+              return next(new Error('User not found.'));
+            }
+  		    console.error('  User found.');
+            next();
+          }
+        );
+		//next();
+      },
+
+      // 4) Update the name
+      function updateUser(next) {
+		console.log("4 update user");		  
+        conn.execute(
+          'UPDATE users SET name = ? WHERE email = ?',
+          [newName, email],
+          (err, result) => {
+            if (err) return next(err);
+            if (result.affectedRows !== 1) {
+              return next(new Error('Update failed.'));
+            }
+            next();
+          }
+        );
+      },
+
+      // 5) Commit
+      function commit(next) {
+		console.log("5 commit");		  
+        conn.commit(next);
+      }
+    ],
+    // Final callback
+    (err) => {
+      if (err) {
+        // Try rollback; prefer surfacing original error afterwards
+		console.log("Waterfall error callback");		
+        if (conn) {
+          return conn.rollback(() => {
+            conn.release();
+            done(err);
+          });
+        }
+        return done(err);
+      }
+	  console.log("done - release connection");	  
+      if (conn) conn.release();
+      done(null, true);
+    }
+  );
+}
+
+// Change name from Carol to Carol Danvers
+renameUserTransactional('carol@example.com', 'Carol Danvers', (err) => {
+  if (err) console.error('Tx error:', err.message);
+  else console.log('Rename committed.');
+  pool.end();
+});
+
+module.exports = { renameUserTransactional };

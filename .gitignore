@@ -3,7 +3,9 @@
 Chapter06/copy_of_01_simple_stream.js
 Chapter07/06_body_parsing/ul/*
 
+.env
 node_modules/
+uploads/
 package-lock.json
 .DS_Store
 Thumbs.db

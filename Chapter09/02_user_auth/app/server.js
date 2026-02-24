@@ -1,3 +1,35 @@
+// http://localhost:8080/pages/service/login
+//
+// http://localhost:8080/pages/login
+// http:\\localhost:8080/pages/login     - login page does not work 
+
+//  http:\\localhost:8080/pages/admin/add_album 
+//  http:\\localhost:8080/pages/admin/add_photo
+// Put a user in the data table 
+/*
+drop table if exists users;
+
+CREATE TABLE IF NOT EXISTS users 
+( user_uuid VARCHAR(50) UNIQUE PRIMARY KEY,
+  email_address VARCHAR(150) UNIQUE,
+
+  display_name VARCHAR(100) NOT NULL,
+  password VARCHAR(100),
+
+  first_seend_date BIGINT,
+  last_modified_date BIGINT,
+  deleted BOOL DEFAULT false,
+
+  INDEX(email_address),
+  INDEX(user_uuid)
+);
+
+// user name: rich  password: asdf
+INSERT IGNORE INTO Users VALUES ("rich", "rrepka10@gmail.com", "Rich", "$2b$10$a1ytHaRFniZARAZMPEMpZuBwmql8Hals/fWFDLoIHy69oSd2lMYOG", "1", "1", "0");
+*/
+// npm install express cookie-parser express-session passport mysql2
+// npm install passport-local body-parser express-flash morgan multer
+// npm install path async bcrypt node-uuid
 
 var express = require('express'),
     cookieParser = require('cookie-parser'),
@@ -78,27 +110,31 @@ function verifyLoggedOut(req, res, next) {
 
 passport.use(new LocalStrategy(
     function(username, password, done) {
+        console.log("app/server.js passport.use");
         user_hdlr.authenticate_user(username, password, (err, user) => {
             if (err && err.code == "invalid_credentials") {
                 return done(null, false, {
                     message: 'Incorrect credentials.'
-                });
+                }); // invalid credentials
             } else if (err) {
                 return done(null, false, {
                     message: `Error while authenticating (\(err.code\))`
-                });
+                }); // auto error
             } else {
+                // success
                 return done(null, user);
             }
-        });
+        }); // end .authenticate_user 
     }
 ));
 
 passport.serializeUser(function(user, done) {
+    console.log("app/server.js passport.serializeUser");
     done(null, user.uuid);
 });
 
 passport.deserializeUser(function(userid, done) {
+    console.log("app/server.js passport.deserializeUser");    
     user_hdlr.user_by_uuid(userid, (err, user) => {
         if (err) {
             done(err, null);
@@ -150,7 +186,8 @@ app.get("/", function (req, res) {
     res.end();
 });
 
-app.get('*', four_oh_four);
+// No longer works
+//app.get('*', four_oh_four);
 
 function four_oh_four(req, res) {
     res.writeHead(404, { "Content-Type" : "application/json" });

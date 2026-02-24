@@ -34,6 +34,7 @@ exports.register = function (email, display_name, password, callback) {
     async.waterfall([
         // validate ze params
         function (cb) {
+            console.log("app/data/users.js validate");
             if (!email || email.indexOf("@") == -1)
                 cb(backhelp.missing_data("email"));
             else if (!display_name)
@@ -51,6 +52,7 @@ exports.register = function (email, display_name, password, callback) {
 
         // register the account.
         function (hash, cb) {
+            console.log("app/data/users.js register");
             userid = uuid();
             var now = Math.round((new Date()).getTime() / 1000);
             db.dbpool.query(
@@ -61,6 +63,7 @@ exports.register = function (email, display_name, password, callback) {
 
         // fetch and return the new user.
         function (results, fields, cb) {
+            console.log("app/data/users.js return new user");
             exports.user_by_uuid(userid, cb);
         }
     ],
@@ -82,9 +85,12 @@ exports.register = function (email, display_name, password, callback) {
 
 function user_by_field (field, value, callback) {
     var dbc;
+    console.log("app/data/user.js user_by_field:", field, value);
     async.waterfall([
         // fetch the user.
         function (cb) {
+            console.log("SELECT * FROM Users WHERE " + field
+                    + " = ", value, "AND deleted = false");
             db.dbpool.query(
                 "SELECT * FROM Users WHERE " + field
                     + " = ? AND deleted = false",
@@ -93,17 +99,22 @@ function user_by_field (field, value, callback) {
         },
 
         function (rows, fields, cb) {
+    //        console.log("app/data/users.js rows:", rows);
             if (!rows || rows.length == 0)
                 cb(backhelp.no_such_user());
-            else
+            else {
+                console.log("app/data/users.js user name found");
                 cb(null, rows[0]);
+            }
         }
     ],
+
     function (err, user_data) {
         if (err) {
+            console.log("app/data/users.js error handler:", user_data);
             callback (err);
         } else {
-            console.log(user_data);
+            console.log("app/data/users.js handler: success");
             callback(null, user_data);
         }
     });
