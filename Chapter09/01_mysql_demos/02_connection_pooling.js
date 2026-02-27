@@ -1,3 +1,4 @@
+// This tests the Mongo db 
 // Sample SQL - requires MySQL community version
 //    https://dev.mysql.com/downloads/mysql/  port 3306, xport 33060
 // Requires an .env file with the following:
@@ -25,8 +26,8 @@ CREATE TABLE IF NOT EXISTS albums
 );
 
 CREATE TABLE IF NOT EXISTS photos
-( filename VARCHAR(225) UNIQUE PRIMARY KEY,
-  album_name VARCHAR(225),
+( album_name VARCHAR(225),
+  filename VARCHAR(225) UNIQUE PRIMARY KEY,
   description VARCHAR(255),
   date VARCHAR(225)
 );
@@ -129,59 +130,71 @@ async.waterfall([
               description: "spanish steps",
               date: "2012/02/18 16:20:40" },
 
-            { filename: "photo_05.jpg",
+            { filename: "picture_005.jpg",
               albumid: "japan2010",
               description: "something nice",
               date: "2010/06/14 12:21:40" },
-            { filename: "photo_01.jpg",
+            { filename: "picture_001.jpg",
               albumid: "japan2010",
               description: "tokyo tower!",
               date: "2010/06/11 12:20:40" },
-            { filename: "photo_06.jpg",
+            { filename: "picture_006.jpg",
               albumid: "japan2010",
               description: "kitty cats",
               date: "2010/06/14 12:23:40" },
-            { filename: "photo_03.jpg",
+            { filename: "picture_003.jpg",
               albumid: "japan2010",
               description: "shinjuku is nice",
               date: "2010/06/12 08:40:40" },
-            { filename: "photo_04.jpg",
+            { filename: "picture_004.jpg",
               albumid: "japan2010",
               description: "eating sushi",
               date: "2010/06/12 08:34:40" },
-            { filename: "photo_02.jpg",
+            { filename: "picture_002.jpg",
               albumid: "japan2010",
               description: "roppongi!",
               date: "2010/06/12 07:44:40" },
-            { filename: "photo_07.jpg",
+            { filename: "picture_007.jpg",
               albumid: "japan2010",
               description: "moo cow oink pig woo!!",
               date: "2010/06/15 12:55:40" },
 
-            { filename: "photo_001.jpg",
+            { filename: "aus_01.jpg",
               albumid: "australia2010",
               description: "sydney!",
               date: "2010/10/20 07:44:40" },
-            { filename: "photo_002.jpg",
+            { filename: "aus_02.jpg",
               albumid: "australia2010",
               description: "asdfasdf!",
               date: "2010/10/20 08:24:40" },
-            { filename: "photo_003.jpg",
+            { filename: "aus_03.jpg",
               albumid: "australia2010",
               description: "qwerqwr!",
               date: "2010/10/20 08:55:40" },
-            { filename: "photo_004.jpg",
+            { filename: "aus_04.jpg",
               albumid: "australia2010",
               description: "zzzxcv zxcv",
               date: "2010/10/21 14:29:40" },
-            { filename: "photo_005.jpg",
+            { filename: "aus_05.jpg",
               albumid: "australia2010",
               description: "ipuoip",
               date: "2010/10/22 19:08:40" },
-            { filename: "photo_006.jpg",
+            { filename: "aus_06.jpg",
               albumid: "australia2010",
               description: "asdufio",
-              date: "2010/10/22 22:15:40" }
+              date: "2010/10/22 22:15:40" },
+          { filename: "aus_07.jpg",
+              albumid: "australia2010",
+              description: "zzzxcv zxcv",
+              date: "2010/11/21 14:29:40" },
+            { filename: "aus_08.jpg",
+              albumid: "australia2010",
+              description: "ipuoip",
+              date: "2010/11/22 19:08:40" },
+            { filename: "aus_09.jpg",
+              albumid: "australia2010",
+              description: "asdufio",
+              date: "2010/11/22 22:15:40" }              
         ];
 
         var q = "\
@@ -271,7 +284,7 @@ SELECT * FROM Photos WHERE album_name = ?\
         console.log("\n** 8. delete photo.");
         dbpool.query(
             "DELETE FROM Photos WHERE filename = ? AND album_name = ?",
-            [ "photo_04.jpg", "japan2010" ],
+            [ "picture_004.jpg", "japan2010" ],
             cb);
     },
 

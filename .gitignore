@@ -1,4 +1,4 @@
-# Ignore the node files
+# Ignore the node files and .env
 
 Chapter06/copy_of_01_simple_stream.js
 Chapter07/06_body_parsing/ul/*

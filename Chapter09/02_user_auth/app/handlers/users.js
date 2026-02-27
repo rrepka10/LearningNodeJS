@@ -26,11 +26,13 @@ User.prototype.last_modified_date = null;
 User.prototype.deleted = false;
 
 User.prototype.check_password = function (pw, callback) {
-    console.log("PW:", pw, "this.pw:", this.password);
-    bcrypt.compare(pw, this.password, callback);    // rrepka
+    console.log("app/handlers/users.js .check_password");
+    console.log("  PW:", pw, "this.pw:", this.password);
+    bcrypt.compare(pw, this.password, callback);  
 };
 
 User.prototype.response_obj = function () {
+    console.log("app/handlers/users.js .response_obj");	
     return {
         uuid: this.uuid,
         email_address: this.email_address,
@@ -42,6 +44,7 @@ User.prototype.response_obj = function () {
 
 
 exports.register = function (req, res) {
+    console.log("app/handlers/users.js .register");	
     async.waterfall([
         function (cb) {
             var em = req.body.email_address;
@@ -76,6 +79,7 @@ exports.register = function (req, res) {
 };
 
 exports.user_by_uuid = function (uuid, callback) {
+    console.log("app/handlers/users.js .user_by_uuid");	
     user_data.user_by_uuid(uuid, (err, user_data) => {
         if (err) {
             callback(err);
@@ -86,6 +90,7 @@ exports.user_by_uuid = function (uuid, callback) {
 };
 
 exports.user_by_display_name = function (req, res) {
+    console.log("app/handlers/users.js .user_by_display_name");	
     async.waterfall([
         // first get the user by the email address.
         function (cb) {
@@ -104,6 +109,7 @@ exports.user_by_display_name = function (req, res) {
 
 exports.authenticate_user = function (un, pw, callback) {
     var user_object;
+    console.log("app/handlers/users.js .authenticate_user");	
     async.waterfall([
         function (cb) {
             user_data.user_by_display_name(un, cb);

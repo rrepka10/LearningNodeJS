@@ -1,12 +1,10 @@
 // testdb & users using await features
-// client = testdb, collection = users
-// works 
+// Install the Mongodb.com Compass Community edition as a service
+// The results of this data base are used in the next step
 
-//import { MongoClient } from "mongodb";
-//import mongoose from  'mongoose';
+// create an empty DB called: testdb and with a collection name of: users
 
 const { MongoClient } = require("mongodb");
-const mongoose = require('mongoose');
 
 const uri = "mongodb://127.0.0.1:27017"; // or your Atlas URI
 const client = new MongoClient(uri);
@@ -15,6 +13,7 @@ const dbName = 'testdb';
 const collectionName = 'users';
 
 /*
+const mongoose = require('mongoose');
 mongoose.set('debug', function (collectionName, method, query, doc, options) {
   //const ts = new Date().toISOString();
   

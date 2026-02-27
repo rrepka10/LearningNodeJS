@@ -1,3 +1,6 @@
+// This displays the contents of albums. This assumes the 
+// createDB.js program has been run to populate the 
+// "photosharingapp" data base with albums and photos
 
 var express = require('express'),
     bodyParser = require('body-parser'),

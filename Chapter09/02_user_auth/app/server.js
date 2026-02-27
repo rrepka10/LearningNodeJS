@@ -1,10 +1,20 @@
-// http://localhost:8080/pages/service/login
-//
-// http://localhost:8080/pages/login
-// http:\\localhost:8080/pages/login     - login page does not work 
+// This assumes you have created a SQL data base and run the
+// Chapter09\01_mysql_demos\02_connection_pooling.js example
 
-//  http:\\localhost:8080/pages/admin/add_album 
-//  http:\\localhost:8080/pages/admin/add_photo
+// to populate the albums and photos table 
+// You will need to manually create the users table (see below)
+
+// the data entry fields have a know issues with <cr> characters
+
+// Test cases: 
+// http://localhost:8080/pages/login     use rich asdf
+//   add a photo to an album and check the data base entry
+//   add an album:  Richtest1    test   a test album
+// http://localhost:8080/pages/home to get to the album list page
+
+//
+
+
 // Put a user in the data table 
 /*
 drop table if exists users;
@@ -26,6 +36,14 @@ CREATE TABLE IF NOT EXISTS users
 
 // user name: rich  password: asdf
 INSERT IGNORE INTO Users VALUES ("rich", "rrepka10@gmail.com", "Rich", "$2b$10$a1ytHaRFniZARAZMPEMpZuBwmql8Hals/fWFDLoIHy69oSd2lMYOG", "1", "1", "0");
+
+show tables; 
+select * from users;  
+use photoalbums;
+    
+delete from albums where name = "rich";
+
+
 */
 // npm install express cookie-parser express-session passport mysql2
 // npm install passport-local body-parser express-flash morgan multer

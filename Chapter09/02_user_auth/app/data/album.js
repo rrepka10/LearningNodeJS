@@ -10,6 +10,8 @@ exports.version = "0.1.0";
 
 
 exports.create_album = function (data, callback) {
+    console.log(`app/data/album.js create_album '${data}'`);
+
     var write_succeeded = false;
     var dbc;
 
@@ -32,7 +34,7 @@ exports.create_album = function (data, callback) {
         },
 
         function (cb) {
-            console.log("app/data/albums.js insert");
+            console.log("app/data/album.js insert");
             db.dbpool.query(
                 "INSERT INTO Albums VALUES (?, ?, ?, ?)",
                 [ data.name, data.title, data.date, data.description ],
@@ -46,8 +48,10 @@ exports.create_album = function (data, callback) {
                      + "albums/" + data.name, cb);
         }
     ], 
+
     function (err, results) {
         // convert file errors to something we like.
+        console.log("app/data/album.js convert errors");
         if (err) {
             if (write_succeeded) delete_album(dbc, data.name);
             if (err instanceof Error && err.code == 'ER_EXISTS') 
@@ -64,6 +68,7 @@ exports.create_album = function (data, callback) {
 
 
 exports.album_by_name = function (name, callback) {
+    console.log("app/data/album.js .album_by_name");
     async.waterfall([
         function (cb) {
             if (!name)
@@ -73,7 +78,7 @@ exports.album_by_name = function (name, callback) {
         },
 
         function (cb) {
-            console.log("app/data/albums.js find ");
+            console.log("app/data/album.js find ");
             db.dbpool.query(
                 "SELECT * FROM Albums WHERE name = ?",
                 [ name ],
@@ -94,6 +99,8 @@ exports.album_by_name = function (name, callback) {
 
 
 exports.photos_for_album = function (album_name, skip, limit, callback) {
+    console.log("app/data/album.js .photos_for_album");
+
     async.waterfall([
         function (cb) {
             if (!album_name)
@@ -103,7 +110,7 @@ exports.photos_for_album = function (album_name, skip, limit, callback) {
         },
 
         function (cb) {
-            console.log("app/data/albums.js photos");
+            console.log("  .db.dbpool.query");
             db.dbpool.query(
                 "SELECT * FROM Photos WHERE album_name = ? LIMIT ?, ?",
                 [ album_name, skip, limit ],
@@ -116,7 +123,7 @@ exports.photos_for_album = function (album_name, skip, limit, callback) {
 
 
 exports.all_albums = function (sort_by, desc, skip, count, callback) {
-    console.log("app/data/albums.js .all_albums");
+    console.log("app/data/album.js .all_albums");
     async.waterfall([
         function (cb) {
             db.dbpool.query(
@@ -132,6 +139,7 @@ exports.all_albums = function (sort_by, desc, skip, count, callback) {
 
 
 exports.add_photo = function (photo_data, path_to_photo, callback) {
+    console.log("app/data/album.js add_photo");
     var base_fn = path.basename(path_to_photo).toLowerCase();
     var write_succeeded = false;
     var dbc;
@@ -139,6 +147,7 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
     async.waterfall([
         // validate data
         function (cb) {
+            console.log("app/data/album.js waterfall validate");            
             try {
                 backhelp.verify(photo_data,
                                 [ "albumid", "description", "date" ]);
@@ -153,7 +162,9 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
         },
 
         function (cb) {
-            console.log("app/data/albums.js insert photos");
+            console.log("app/data/album.js insert photos");
+            console.log("  albumid:" ,photo_data.albumid, "fn:", base_fn);
+            console.log("  desc:", photo_data.description, "date:", photo_data.date);
             db.dbpool.query(
                 "INSERT INTO Photos VALUES (?, ?, ?, ?)",
                 [ photo_data.albumid, base_fn, photo_data.description,
@@ -163,10 +174,12 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
 
         // now copy the temp file to static content
         function (results, fields, cb) {
-            console.log(arguments);
             write_succeeded = true;
             var save_path = local.config.static_content + "albums/"
                 + photo_data.albumid + "/" + base_fn;
+            console.log("app/data/album.js copy file:");
+            console.log(" photo path:", path_to_photo);
+            console.log(" save path: ", save_path);
             backhelp.file_copy(path_to_photo, save_path, true, cb);
         },
 
@@ -187,16 +200,19 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
 
 
 function invalid_album_name() {
+    console.log("app/data/album.js invalid_album_name");
     return backhelp.error("invalid_album_name",
                           "Album names can have letters, #s, _ and, -");
 }
 function invalid_filename() {
+    console.log("app/data/album.js invalid_filename");
     return backhelp.error("invalid_filename",
                           "Filenames can have letters, #s, _ and, -");
 }
 
 
 function delete_album(dbc, name) {
+    console.log(`app/data/album.js delete_album: '${name}'`);
     dbc.query(
         "DELETE FROM Albums WHERE name = ?",
         [ name ],

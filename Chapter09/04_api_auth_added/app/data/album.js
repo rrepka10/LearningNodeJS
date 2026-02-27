@@ -10,6 +10,7 @@ exports.version = "0.1.0";
 
 
 exports.create_album = function (data, callback) {
+    console.log(`app/data/album.js create_album '${data}'`);
     var write_succeeded = false;
     var dbc;
 
@@ -46,8 +47,10 @@ exports.create_album = function (data, callback) {
                      + "albums/" + data.name, cb);
         }
     ], 
+
     function (err, results) {
         // convert file errors to something we like.
+        console.log("app/data/album.js convert errors");
         if (err) {
             if (write_succeeded) delete_album(dbc, data.name);
             if (err instanceof Error && err.code == 'ER_EXISTS') 
@@ -66,6 +69,7 @@ exports.create_album = function (data, callback) {
 
 
 exports.album_by_name = function (name, callback) {
+    console.log("app/data/album.js .album_by_name");
     var dbc;
 
     async.waterfall([
@@ -99,6 +103,7 @@ exports.album_by_name = function (name, callback) {
 
 
 exports.photos_for_album = function (album_name, skip, limit, callback) {
+    console.log("app/data/album.js .photos_for_album");
     var dbc;
 
     async.waterfall([
@@ -110,6 +115,7 @@ exports.photos_for_album = function (album_name, skip, limit, callback) {
         },
 
         function (dbclient, cb) {
+            console.log("  dbc.query");
             dbc = dbclient;
             dbc.query(
                 "SELECT * FROM Photos WHERE album_name = ? LIMIT ?, ?",
@@ -118,7 +124,9 @@ exports.photos_for_album = function (album_name, skip, limit, callback) {
         },
 
     ],
+
     function (err, results) {
+        console.log("  waterfall end");
         if (dbc) dbc.end();
         if (err) {
             callback (err);
@@ -130,6 +138,7 @@ exports.photos_for_album = function (album_name, skip, limit, callback) {
 
 
 exports.all_albums = function (sort_by, desc, skip, count, callback) {
+    console.log("app/data/album.js .all_albums");
     var dbc;
     async.waterfall([
         function (cb) {
@@ -157,6 +166,7 @@ exports.all_albums = function (sort_by, desc, skip, count, callback) {
 
 
 exports.add_photo = function (photo_data, path_to_photo, callback) {
+    console.log("app/data/album.js add_photo");
     var base_fn = path.basename(path_to_photo).toLowerCase();
     var write_succeeded = false;
     var dbc;
@@ -164,6 +174,7 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
     async.waterfall([
         // validate data
         function (cb) {
+            console.log("app/data/album.js waterfall validate");
             try {
                 backhelp.verify(photo_data,
                                 [ "albumid", "description", "date" ]);
@@ -178,6 +189,9 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
         },
 
         function (dbclient, cb) {
+            console.log("app/data/album.js insert photos");
+            console.log("  albumid:" ,photo_data.albumid, "fn:", base_fn);
+            console.log("  desc:", photo_data.description, "date:", photo_data.date);
             dbc = dbclient;
             dbc.query(
                 "INSERT INTO Photos VALUES (?, ?, ?, ?)",
@@ -191,6 +205,9 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
             write_succeeded = true;
             var save_path = local.config.static_content + "albums/"
                 + photo_data.albumid + "/" + base_fn;
+            console.log("app/data/album.js copy file:");
+            console.log(" photo path:", path_to_photo);
+            console.log(" save path: ", save_path);
             backhelp.file_copy(path_to_photo, save_path, true, cb);
         },
 
@@ -212,10 +229,13 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
 
 
 function invalid_album_name() {
+    console.log("app/data/album.js invalid_album_name");
     return backhelp.error("invalid_album_name",
                           "Album names can have letters, #s, _ and, -");
 }
+
 function invalid_filename() {
+    console.log("app/data/album.js invalid_filename");
     return backhelp.error("invalid_filename",
                           "Filenames can have letters, #s, _ and, -");
 }

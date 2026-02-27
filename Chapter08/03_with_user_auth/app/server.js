@@ -1,4 +1,5 @@
-//  
+//  This assumes the data base has been populated with createDB.js
+
 //  http:\\localhost:8080                 - home
 //  http:\\localhost:8080/pages/register  - does not work
 //  http:\\localhost:8080/pages/login     - login page does not wokr 

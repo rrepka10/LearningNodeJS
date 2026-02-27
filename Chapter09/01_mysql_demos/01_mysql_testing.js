@@ -1,11 +1,13 @@
+// Changed to ignore errors to allow multiple entires.  This was switched to 
+// connection pooling to get it to work.  
+// This will populate the photoalbums database
+
 // Sample SQL - requires MySQL community version
 //    https://dev.mysql.com/downloads/mysql/  port 3306, xport 33060
 // Requires an .env file with the following:
 // Sample .env  ROOTPW=
 //              USERID=
 //              USERPW=
-// Changed to ignore errors to allow multiple entires.  This was switched to 
-// connection pooling to get it to work.  
 
 // Useful commands for the SQL command line, you must create the SQL data base 
 // and tables 
@@ -42,8 +44,8 @@ CREATE TABLE IF NOT EXISTS albums
 );
 
 CREATE TABLE IF NOT EXISTS photos
-( filename VARCHAR(225) UNIQUE PRIMARY KEY,
-  album_name VARCHAR(225),
+( album_name VARCHAR(225),
+  filename VARCHAR(225) UNIQUE PRIMARY KEY,
   description VARCHAR(255),
   date VARCHAR(225)
 );

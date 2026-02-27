@@ -9,7 +9,7 @@ var async = require('async'),
 exports.version = "0.1.0";
 
 exports.user_by_uuid = function (uuid, callback) {
-    console.log("app data user.js .user_by_uuid");
+    console.log("app/data/user.js .user_by_uuid");
     if (!uuid) {
         console.log("   missing uuid");
         callback(backhelp.missing_data("uuid"));
@@ -21,7 +21,7 @@ exports.user_by_uuid = function (uuid, callback) {
 };
 
 exports.user_by_display_name = function (dn, callback) {
-    console.log("app data user.js .user_by_display_name");
+    console.log("app/data/user.js .user_by_display_name");
     if (!dn) {
         console.log("   missing display_name");
         callback(backhelp.missing_data("display_name"));
@@ -33,7 +33,7 @@ exports.user_by_display_name = function (dn, callback) {
 }
 
 exports.user_by_email_address = function (email, callback) {
-    console.log("app data user.js .user_by_email_address");
+    console.log("app/data/user.js .user_by_email_address");
     if (!email) {
         console.log("   missing email address");
         callback(backhelp.missing_data("email"));
@@ -49,7 +49,7 @@ exports.register = function (email, display_name, password, callback) {
     async.waterfall([
         // validate ze params
         function (cb) {
-            console.log("app data user.js .register");
+            console.log("app/data/user.js .register");
             if (!email || email.indexOf("@") == -1)
                 cb(backhelp.missing_data("email"));
             else if (!display_name)
@@ -99,7 +99,9 @@ exports.register = function (email, display_name, password, callback) {
 
 
 function user_by_field (field, value, callback) {
-    console.log("app data user.js user_by_field:", field, value);
+    console.log("app/data/user.js user_by_field:", field, value);
+    console.log("  field:", field);
+    console.log("  value:", value);
     var o = {};
     o[field] = value;
 

@@ -9,6 +9,7 @@ var async = require('async'),
 exports.version = "0.1.0";
 
 exports.user_by_uuid = function (uuid, callback) {
+    console.log("app/data/users.js users_by_uuid");
     if (!uuid)
         callback(backhelp.missing_data("uuid"));
     else
@@ -16,6 +17,7 @@ exports.user_by_uuid = function (uuid, callback) {
 };
 
 exports.user_by_display_name = function (dn, callback) {
+    console.log("app/data/users.js user_by_display_name");
     if (!dn)
         callback(backhelp.missing_data("display_name"));
     else
@@ -23,6 +25,7 @@ exports.user_by_display_name = function (dn, callback) {
 }
 
 exports.user_by_email_address = function (email, callback) {
+    console.log("app/data/users.js user_by_email_address");
     if (!email)
         callback(backhelp.missing_data("email"));
     else
@@ -30,6 +33,7 @@ exports.user_by_email_address = function (email, callback) {
 };
 
 exports.register = function (email, display_name, password, callback) {
+    console.log("app/data/users.js exports.register");
     var dbc;
     var userid;
     async.waterfall([
@@ -71,6 +75,7 @@ exports.register = function (email, display_name, password, callback) {
             exports.user_by_uuid(userid, cb);
         }
     ],
+
     function (err, user_data) {
         if (dbc) dbc.end();
         if (err) {
@@ -91,6 +96,7 @@ exports.register = function (email, display_name, password, callback) {
 
 
 function user_by_field (field, value, callback) {
+    console.log("app/data/users.js user_by_field");
     var dbc;
     async.waterfall([
         // get a connection

@@ -12,7 +12,7 @@ const bcrypt = require("bcrypt");
 const users = [
   {
     id: 1,
-    username: "Rich",
+    username: "rich",
     password: "asdf", // (hashed below)
     passwordHash: "$2b$10$a1ytHaRFniZARAZMPEMpZuBwmql8Hals/fWFDLoIHy69oSd2lMYOG"
   }
@@ -37,7 +37,7 @@ app.use(passport.session());
 // Configure Passport Local Strategy
 passport.use(
   new LocalStrategy(async (username, password, done) => {
-    console.log("user:", username, "password:", password);
+    console.log("passed user:", username, "password:", password);
     const user = users.find(u => u.username === username);
     if (!user) {
       console.log("User not found");
@@ -90,6 +90,6 @@ app.get("/protected", (req, res) => {
   res.send("You are logged in!");
 });
 
-console.log("username: testuser password: password123");
 
+console.log("username:", users[0].username,  "password:", users[0].password);
 app.listen(3000, () => console.log("Server running on http://localhost:3000"));

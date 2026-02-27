@@ -10,6 +10,9 @@ exports.version = "0.1.0";
  * Album class.
  */
 function Album (album_data) {
+    console.log("app/handlers/albums.js Album");
+    console.log("name:", album_data.name, "title:", album_data.title);
+    console.log("dec", album_data.description, "date:", album_data.date);
     this.name = album_data.name;
     this.date = album_data.date;
     this.title = album_data.title;
@@ -23,12 +26,19 @@ Album.prototype.title = null;
 Album.prototype.description = null;
 
 Album.prototype.response_obj = function () {
+    console.log("app/handlers/albums.js Album.protptype.response_obj");
+    console.log("  name:", this.name, "title:", this.title);
+    console.log("  date:", this.date, "desc:", this.description);
+    console.log("object:", this);
+
     return { name: this.name,
              date: this.date,
              title: this.title,
              description: this.description };
 };
+
 Album.prototype.photos = function (pn, ps, callback) {
+    console.log("app/handlers/albums.js Album.prototype.photos");    
     if (this.album_photos != undefined) {
         callback(null, this.album_photos);
         return;
@@ -51,8 +61,10 @@ Album.prototype.photos = function (pn, ps, callback) {
             callback(null, this.album_photos);
         }
     );
-};             
+};  
+
 Album.prototype.add_photo = function (data, path, callback) {
+    console.log("app/handlers/albums.js Album.prototype.add_photo");    
     album_data.add_photo(data, path, function (err, photo_data) {
         if (err)
             callback(err);
@@ -74,18 +86,23 @@ Album.prototype.add_photo = function (data, path, callback) {
  * Photo class.
  */
 function Photo (photo_data) {
+    console.log("app/handlers/albums.js Photo");    
     this.filename = photo_data.filename;
     this.date = photo_data.date;
     this.albumid = photo_data.albumid;
     this.description = photo_data.description;
     this._id = photo_data._id;
 }
+
 Photo.prototype._id = null;
 Photo.prototype.filename = null;
 Photo.prototype.date = null;
 Photo.prototype.albumid = null;
 Photo.prototype.description = null;
 Photo.prototype.response_obj = function() {
+    console.log("app/handlers/albums.js Photo.prototype.response_obj");   
+    console.log("  filename:", this.filename, "albumid:", this.albumid );
+    console.log("  date:", this.date, "desc:", this.description); 
     return {
         filename: this.filename,
         date: this.date,
@@ -98,9 +115,11 @@ Photo.prototype.response_obj = function() {
  * Album module methods.
  */
 exports.create_album = function (req, res) {
+    console.log(`app/handlers/albums.js .create_album '${req}'`);
     async.waterfall([
         // make sure the albumid is valid 
         function (cb) {
+            console.log("  check album id");
             if (!req.body || !req.body.name) {
                 cb(helpers.no_such_album());
                 return;
@@ -112,13 +131,16 @@ exports.create_album = function (req, res) {
         },
 
         function (cb) {
+            console.log("  create album");
             album_data.create_album(req.body, cb);
         }
     ],
+
     function (err, results) {
         if (err) {
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
         } else {
+            console.log("  success");
             var a = new Album(results);
             helpers.send_success(res, {album: a.response_obj() });
         }
@@ -127,6 +149,7 @@ exports.create_album = function (req, res) {
 
 
 exports.album_by_name = function (req, res) {
+    console.log("app/handlers/albums.js .album_by_name");    
     async.waterfall([
         // get the album
         function (cb) {
@@ -152,6 +175,7 @@ exports.album_by_name = function (req, res) {
 
 
 exports.list_all = function (req, res) {
+    console.log("app/handlers/albums.js .list_all");
     album_data.all_albums("date", true, 0, 25, (err, results) => {
         if (err) {
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
@@ -169,6 +193,7 @@ exports.list_all = function (req, res) {
 
 
 exports.photos_for_album = function(req, res) {
+    console.log("app/handlers/albums.js .photos_for_album");
     var page_num = req.query.page ? req.query.page : 0;
     var page_size = req.query.page_size ? req.query.page_size : 1000;
 
@@ -217,6 +242,7 @@ exports.photos_for_album = function(req, res) {
 
 
 exports.add_photo_to_album = function (req, res) {
+    console.log("app/handlers/albums.js .add_photo_to_album");
     var album;
     async.waterfall([
         // make sure we have everything we need.

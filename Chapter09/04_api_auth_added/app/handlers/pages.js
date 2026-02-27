@@ -7,12 +7,13 @@ exports.version = "0.1.0";
 
 
 exports.generateAdmin = function (req, res) {
+    console.log("app/handlers/pages.js" .generateAdmin);
     req.params.page_name = 'admin';
     exports.generate(req, res);
 };
 
 exports.generate = function (req, res) {
-
+    console.log("app/handlers/pages.js .generate");
     var page = req.params.page_name;
     if (req.params.sub_page && req.params.page_name == 'admin')
         page = req.params.page_name + "_" + req.params.sub_page;
@@ -37,6 +38,7 @@ exports.generate = function (req, res) {
 
 // if we made it here, then we're logged in. redirect to admin home
 exports.login = function (req, res) {
+    console.log("app/handlers/pages.js .login");
     res.redirect("/pages/admin/home");
     res.end();
 };

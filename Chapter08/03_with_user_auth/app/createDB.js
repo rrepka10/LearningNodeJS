@@ -1,4 +1,4 @@
-// This populates the data base 
+// This populates the mongo data base 
 
 // npm install async
 // npm install mongodb
