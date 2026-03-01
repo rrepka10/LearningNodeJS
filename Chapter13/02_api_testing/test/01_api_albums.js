@@ -1,4 +1,7 @@
-// This teest the albums API 
+// This tests the mongoDB albums API.  Run Chapter08\
+
+// Run test:  npx nodeunit .\01_functional.js
+
  //"nodeunit": "0.x",
    // "request": "2.x"
 //   var mysql = require('mysql2'),
@@ -12,7 +15,6 @@ var request = require('request');
 
 var h = "http://localhost:8080";
 
-/*
 exports.no_albums = function (test) {
     console.log("no_albums test");
     test.expect(5);
@@ -26,7 +28,7 @@ exports.no_albums = function (test) {
         test.done();
     });
 };
-*/
+
 exports.create_album = function (test) {
     console.log("create_album test");
     var d = "We went to HK to do some shopping and spend new years. Nice!";
@@ -39,6 +41,7 @@ exports.create_album = function (test) {
                          description: d,
                   date: "2012-12-28" } },
         function (err, resp, body) {
+            console.log("resp:", resp);
             test.equal(err, null);
             test.equal(resp.statusCode, 200);
             test.notEqual(body.data.album, undefined);
@@ -46,10 +49,12 @@ exports.create_album = function (test) {
             test.equal(body.data.album.date, "2012-12-28");
             test.equal(body.data.album.description, d);
             test.equal(body.data.album.title, t);
+            console.log("done");
             test.done();
         }
     );
 }
+
 
 exports.fail_create_album = function (test) {
     console.log("fail_create_album test");
@@ -69,4 +74,4 @@ exports.fail_create_album = function (test) {
             test.done();
         }
     );
-};
+}; 

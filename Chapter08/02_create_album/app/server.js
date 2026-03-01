@@ -2,6 +2,8 @@
 // createDB.js program has been run to populate the 
 // "photosharingapp" data base with albums and photos
 
+// npm install express body-parser morgan multer
+
 var express = require('express'),
     bodyParser = require('body-parser'),
     morgan = require('morgan'),

@@ -12,8 +12,9 @@ var mysql_pool;
  * the database.  We won't even attempt to start up
  * if this fails, as it's pretty pointless.
  */
-exports.init = function (callback) {
 
+exports.init = function (callback) {
+/*
     conn_props = local.config.db_config;
 
     mysql_pool = pool.Pool({
@@ -32,6 +33,21 @@ exports.init = function (callback) {
         idleTimeoutMillis : conn_props.idle_timeout_millis,
         log               : false
     });
+*/
+exports.init = function () {
+    conn_props = local.config.db_config;
+    console.log("app/data/db.js .init");
+    console.log("  mySQL server:", conn_props.host, conn_props.user, conn_props.password, conn_props.database); 
+    exports.dbpool = mysql.createPool({
+        connectionLimit: conn_props.pooled_connections,
+        host:            conn_props.host,
+        user:            conn_props.user,
+        password:        conn_props.password,
+        database:        conn_props.database
+    });
+};
+
+
 
     // run a test query to make sure it's working.
     exports.run_mysql_query("SELECT 1", [], function (err, results) {

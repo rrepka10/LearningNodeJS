@@ -1,5 +1,5 @@
 /*
-npm install express async generic-pool mysql2 bcrypt node-uuid morgan
+npm install express async generic-pool mysql2 bcrypt node-uuid morgan body-parser cookie-parser express-session
     */
 var express = require('express');
 var app = express();
@@ -8,6 +8,9 @@ var db = require('./data/db.js'),
     album_hdlr = require('./handlers/albums.js'),
     page_hdlr = require('./handlers/pages.js'),
     user_hdlr = require('./handlers/users.js'),
+    bodyParser = require('body-parser'),
+    session = require('express-session'),
+    cookieParser = require('cookie-parser'),
     helpers = require('./handlers/helpers.js');
 
 //app.use(express.logger('dev'));
@@ -20,10 +23,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + "/../static"));
 
 //app.use(express.cookieParser("kitten on  keyboard")); // not a function error
-app.use(cookieParser("kitten on  keyboard")); 
+app.use(cookieParser("whoopity whoopity whoop whoop")); 
 
 // app.use(express.cookieSession({secret: "FLUFFY BUNNIES", maxAge: 86400000})); // not a function error
-app.use(cookieSession({secret: "FLUFFY BUNNIES", secure: false, httpOnly: true, maxAge: 86400000}));
+var session_configuration = {
+    secret: 'whoopity whoopity whoop whoop',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+};
+
+session_configuration.cookie.secure = false;
+app.use(session(session_configuration));
+
 
 app.get('/v1/albums.json', album_hdlr.list_all);
 app.put('/v1/albums.json', album_hdlr.create_album);
