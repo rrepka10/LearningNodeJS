@@ -1,16 +1,22 @@
 var readline = require('readline');
 
+// Define the interface
 var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
+console.log("Simple RPN calculator using readline");
+console.log("  e.g   2 3 * 4 / 5 +  is 6.5");
+
+// Set the prompt and wait for input 
 var p = "rpn expression > "
 rl.setPrompt(p, p.length);
 rl.prompt();
 
 rl.on("line", function (line) {
-    if (line == "\n")  {
+    // console.log(`line: '${line}'`);
+    if ((line == "\n") || (line == "")) {
         rl.close();
         return;
     }

@@ -3,8 +3,8 @@
 exports.config = {
     db_config: {
         host: "localhost",
-        user: "root",
-        password: "",
+        user: "rrepka10",
+        password: "testSQL123$%",
         database: "PhotoAlbums",
 
         pooled_connections: 125,

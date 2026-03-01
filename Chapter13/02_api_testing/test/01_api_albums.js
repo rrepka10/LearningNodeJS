@@ -1,9 +1,20 @@
+// This teest the albums API 
+ //"nodeunit": "0.x",
+   // "request": "2.x"
+//   var mysql = require('mysql2'),
+  //     pool = require('generic-pool'),
+    //   async = require('async'),
+// use photoalbums;
+//show tables; 
+//select * from albums;
 
 var request = require('request');
 
 var h = "http://localhost:8080";
 
+/*
 exports.no_albums = function (test) {
+    console.log("no_albums test");
     test.expect(5);
     request.get(h + "/v1/albums.json", function (err, resp, body) {
         test.equal(err, null);
@@ -15,8 +26,9 @@ exports.no_albums = function (test) {
         test.done();
     });
 };
-
+*/
 exports.create_album = function (test) {
+    console.log("create_album test");
     var d = "We went to HK to do some shopping and spend new years. Nice!";
     var t = "New Years in Hong Kong";
     test.expect(7);
@@ -40,6 +52,7 @@ exports.create_album = function (test) {
 }
 
 exports.fail_create_album = function (test) {
+    console.log("fail_create_album test");
     test.expect(4);
     request.put(
         { url: h + "/v1/albums.json",

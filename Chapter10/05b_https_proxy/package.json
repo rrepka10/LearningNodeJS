@@ -4,9 +4,9 @@
   "version": "0.0.2",
   "private": true,
   "dependencies": {
-    "async": "2.x",
-    "express": "4.x",
-    "http-proxy": "1.x",
-    "morgan": "1.x"
+    "async": "^3.2.6",
+    "express": "^5.2.1",
+    "http-proxy": "^1.18.1",
+    "morgan": "^1.10.1"
   }
 }

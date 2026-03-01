@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "nodeunit": "0.x",
-    "request": "2.x"
+    "async": "^3.2.6",
+    "generic-pool": "^3.9.0",
+    "mysql2": "^3.18.2"
   }
 }

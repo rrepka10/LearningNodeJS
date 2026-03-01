@@ -4,14 +4,18 @@ var fs = require('fs'),
 
 var BUFFER_SIZE = 1000000;
 
+// Synchronius file copy into a buffer
 function copy_file_sync (src, dest) {
     var read_so_far, fdsrc, fddest, read;
-    var buff = new Buffer(BUFFER_SIZE);
+    //var buff = new Buffer(BUFFER_SIZE);
+    var buff = Buffer.alloc(BUFFER_SIZE); 
 
+    // Open input and open files are R and W
     fdsrc = fs.openSync(src, 'r');
     fddest = fs.openSync(dest, 'w');
     read_so_far = 0;
 
+    // Read until all the data is processed 
     do {
         read = fs.readSync(fdsrc, buff, 0, BUFFER_SIZE, read_so_far);
         fs.writeSync(fddest, buff, 0, read);
@@ -22,11 +26,13 @@ function copy_file_sync (src, dest) {
     return fs.closeSync(fddest);
 }
 
-
+// Check for the parameters
 if (process.argv.length != 4) {
+    // Error
     console.log("Usage: " + path.basename(process.argv[1], '.js') 
                 + " [src_file] [dest_file]");
 } else {
+    // Good
     try {
         copy_file_sync(process.argv[2], process.argv[3]);
     } catch (e) {

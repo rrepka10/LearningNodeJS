@@ -1,4 +1,6 @@
-
+/*
+npm install express async generic-pool mysql2 bcrypt node-uuid morgan
+    */
 var express = require('express');
 var app = express();
 
@@ -8,13 +10,20 @@ var db = require('./data/db.js'),
     user_hdlr = require('./handlers/users.js'),
     helpers = require('./handlers/helpers.js');
 
-app.use(express.logger('dev'));
-app.use(express.bodyParser({ keepExtensions: true }));
+//app.use(express.logger('dev'));
+// app.use(morgan('dev'));  // disable performance monitoring
+
+//app.use(express.bodyParser({ keepExtensions: true })); not a function
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false })); 
+
 app.use(express.static(__dirname + "/../static"));
-app.use(express.cookieParser("kitten on  keyboard"));
-app.use(express.cookieSession({
-    maxAge: 86400000
-}));
+
+//app.use(express.cookieParser("kitten on  keyboard")); // not a function error
+app.use(cookieParser("kitten on  keyboard")); 
+
+// app.use(express.cookieSession({secret: "FLUFFY BUNNIES", maxAge: 86400000})); // not a function error
+app.use(cookieSession({secret: "FLUFFY BUNNIES", secure: false, httpOnly: true, maxAge: 86400000}));
 
 app.get('/v1/albums.json', album_hdlr.list_all);
 app.put('/v1/albums.json', album_hdlr.create_album);
@@ -36,7 +45,7 @@ app.get("/", function (req, res) {
     res.end();
 });
 
-app.get('*', four_oh_four);
+// app.get('*', four_oh_four);
 
 function four_oh_four(req, res) {
     res.writeHead(404, { "Content-Type" : "application/json" });

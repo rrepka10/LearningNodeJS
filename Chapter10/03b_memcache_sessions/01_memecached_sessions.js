@@ -1,3 +1,14 @@
+// This requires the memcache.  Memcache is really a Linux utility 
+// and not generally available for windows.
+// 
+// npm install express cookie-parser morgan express-session connect-memcached
+
+// sudo apt install memcached libmemcached-tools
+// memcached -V
+
+// test with: localhost:8080  - will respond with the last time stamp
+//    You last asked for this page at: 2026-02-28T18:11:54.940Z
+
 var express = require('express'),
     cookieParser = require('cookie-parser'),
     morgan = require('morgan'),
@@ -7,7 +18,6 @@ var port_number = 8080;
 if (process.argv.length == 3) {
     port_number = process.argv[2];
 }
-
 
 // pass the express object so it can inherit from MemoryStore
 var MemcachedStore = require('connect-memcached')(session);

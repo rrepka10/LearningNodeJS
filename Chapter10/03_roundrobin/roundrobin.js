@@ -1,3 +1,9 @@
+// This is a reverse proxy,round robin control program that then
+// calls an instance of the simple.js server, once
+// for each call to localhost:8080/
+
+// npm install http http-proxy 
+
 var http = require("http"),
     httpProxy = require('http-proxy'),
     fs = require('fs');
@@ -10,10 +16,13 @@ var proxy = httpProxy.createProxyServer({});
 // 2. Create a regular HTTP server.
 var s = http.createServer(function (req, res) {
     var target = servers.shift();     // 3. Remove first server
+    console.log("Create Server:", target);
+
     // 4. Re-route to that server
     proxy.web(req, res, { target: target });
     servers.push(target);             // 5. Add back to end of list
 });
 
+console.log("Listening on localhost:8080")
 s.listen(8080);
 

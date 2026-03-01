@@ -1,3 +1,3 @@
 
-console.log(process.argv);
+console.log("Dump argv:", process.argv);
 

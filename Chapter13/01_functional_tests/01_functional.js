@@ -1,3 +1,11 @@
+// This demonstrates automated testing.  Edit one of the results
+// to see an error case
+
+// npm install nodeunit 
+
+// Run test:  npx nodeunit .\01_functional.js
+
+// Our RPN calculator 
 var rpn = require('./rpn.js');
 
 
@@ -31,7 +39,7 @@ exports.division = function (test) {
     test.expect(3)
     test.equals(rpn.compute(prep("39 13 /")), 3);
     test.equals(rpn.compute(prep("9 39 13 / /")), 3);
-    test.equals(rpn.compute(prep("18 27 39 13 / / /")), 2);
+    test.equals(rpn.compute(prep("18 27 39 13 / / /")), 2);  
     test.done();
 };
 

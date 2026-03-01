@@ -3,8 +3,14 @@ var fs = require('fs'),
     path = require('path');
 
 function mkdirs (path_to_create, mode) {
+    console.log("process mask:", process.umask());
     if (mode == undefined)
-        mode = 0777 & (~process.umask());
+        {
+        // mode = 0777 & (~process.umask());  // deprecated 
+        // Set it to what your want and let the OS correct it
+        // user r/w/x
+        mode = 0700;
+        }
 
     var parts = path_to_create.split(path.sep);
     var i;
@@ -30,10 +36,14 @@ function mkdirs (path_to_create, mode) {
     }
 }
 
+// Check the numberof paremeters
 if (process.argv.length != 3) {
+    // bad
+    console.log("This can create recursive directories");
     console.log("Usage: " + path.basename(process.argv[1], '.js') 
                 + " path_to_create");
 } else {
+    // Good
     try {
         mkdirs(process.argv[2]);
     } catch (e) {
@@ -41,5 +51,5 @@ if (process.argv.length != 3) {
         console.log(e);
         process.exit(-1);
     }
-    console.log("done");
+    console.log(process.argv[2], "created, done");
 }

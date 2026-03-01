@@ -1,4 +1,4 @@
-var mysql = require('mysql'),
+var mysql = require('mysql2'),
     pool = require('generic-pool'),
     async = require('async'),
     local = require("../local.config.js");

@@ -13,21 +13,21 @@ sudo emacs (or vi) /etc/hosts
 
 Add the following entries:
 
-127.0.0.1       app1
-127.0.0.1       app2
-127.0.0.1       app3
+127.0.0.1       app1.local
+127.0.0.1       app2.local
+127.0.0.1       app3.local
 
 Save and exit
 
 ### Windows
 
-notepad c:\windows\system32\drivers\etc\hosts.txt
+as admin, edit notepad c:\windows\system32\drivers\etc\hosts
 
 Add the following entries:
 
-127.0.0.1       app1
-127.0.0.1       app2
-127.0.0.1       app3
+127.0.0.1       app1.local
+127.0.0.1       app2.local
+127.0.0.1       app3.local
 
 Save and exit.
 
@@ -40,9 +40,9 @@ Save and exit.
 
 1. You can either use `curl` to download the page content:
 
-    curl http://app1:8080/
-    curl http://app2:8080/
-    curl http://app3:8080/
+    curl http://app1.local:8080/
+    curl http://app2.local:8080/
+    curl http://app3.local:8080/
 
-1. Or you can just view the page in the browser, as _http://app1:8080_, _http://app1:8080_, _http://app1:8080_ .
+1. Or you can just view the page in the browser, as _http://app1.local:8080_, _http://app2.local:8080_, _http://app3.local:8080_ .
 
