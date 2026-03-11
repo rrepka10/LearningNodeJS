@@ -1,5 +1,6 @@
 // This assumes you have created a SQL data base and run the
 // Chapter09\01_mysql_demos\02_connection_pooling.js example
+// be sure to update: local.config.json with your credentials.
 
 // to populate the albums and photos table 
 // You will need to manually create the users table (see below)
@@ -7,13 +8,20 @@
 // the data entry fields have a know issues with <cr> characters
 
 // Test cases: 
-// http://localhost:8080/pages/login     use rich asdf
+// http:\\localhost:8080                        - home, list albums
+// http:\\localhost:8080/pages/album/italy2012  - the album content pictures
+// http://localhost:8080/pages/login            - use rich asdf
+//   should redirect to http://localhost:8080/pages/admin/home after login
+// http://localhost:8080/pages/admin/home
 //   add a photo to an album and check the data base entry
 //   add an album:  Richtest1    test   a test album
 // http://localhost:8080/pages/home to get to the album list page
 
-//
+// requires login
+// http://localhost:8080/pages/admin/add_album - adds albums to the database
+// http:\\localhost:8080/pages/admin/add_photo
 
+// http:\\localhost:8080/pages/register  
 
 // Put a user in the data table 
 /*

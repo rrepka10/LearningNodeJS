@@ -9,24 +9,33 @@ var async = require('async'),
 exports.version = "0.1.0";
 
 exports.user_by_uuid = function (uuid, callback) {
-    if (!uuid)
-        callback(backhelp.missing_data("uuid"));
-    else
-        user_by_field("user_uuid", uuid, callback);
+    console.log("app/data/user.js .user_by_uuid");
+    if (!uuid) {
+        console.log("   missing uuid");
+        callback(backhelp.missing_data("uuid"));}
+    else {
+        console.log("   uuid:", uuid);
+        user_by_field("user_uuid", uuid, callback);}
 };
 
 exports.user_by_display_name = function (dn, callback) {
-    if (!dn)
-        callback(backhelp.missing_data("display_name"));
-    else
-        user_by_field("display_name", dn, callback);
+    console.log("app/data/user.js .user_by_display_name");
+    if (!dn) {
+        console.log("   missing display_name");
+        callback(backhelp.missing_data("display_name"));}
+    else {
+        console.log("   display_name:", dn);
+        user_by_field("display_name", dn, callback);}
 }
 
 exports.user_by_email_address = function (email, callback) {
-    if (!email)
-        callback(backhelp.missing_data("email"));
-    else
-        user_by_field("email_address", email, callback);
+    console.log("app/data/user.js .user_by_email_address");
+    if (!email) {
+        console.log("   missing email address");
+        callback(backhelp.missing_data("email"));}
+    else {
+        console.log("   email_address:", email);
+        user_by_field("email_address", email, callback);}
 };
 
 exports.register = function (email, display_name, password, callback) {
@@ -34,25 +43,30 @@ exports.register = function (email, display_name, password, callback) {
     async.waterfall([
         // validate ze params
         function (cb) {
-            console.log("app/data/users.js validate");
-            if (!email || email.indexOf("@") == -1)
-                cb(backhelp.missing_data("email"));
-            else if (!display_name)
-                cb(backhelp.missing_data("display_name"));
-            else if (!password)
-                cb(backhelp.missing_data("password"));
-            else
-                cb(null);
+            console.log("app/data/user.js validate");
+            if (!email || email.indexOf("@") == -1) {
+                console.log("  Error invalid_email_address");
+			    cb(backhelp.missing_data("email"));}
+            else if (!display_name) {
+                console.log("  error, bad display_name");
+			    cb(backhelp.missing_data("display_name"));}
+            else if (!password) {
+                console.log("  error, missing password");
+			    cb(backhelp.missing_data("password"));}
+            else{
+                console.log("  good user info");
+			    cb(null);}
         },
 
         // generate a password hash
         function (cb) {
+			console.log("  encrypting the PW");
             bcrypt.hash(password, 10, cb);
         },
 
         // register the account.
         function (hash, cb) {
-            console.log("app/data/users.js register");
+            console.log("app/data/user.js register");
             userid = uuid();
             var now = Math.round((new Date()).getTime() / 1000);
             db.dbpool.query(
@@ -63,7 +77,7 @@ exports.register = function (email, display_name, password, callback) {
 
         // fetch and return the new user.
         function (results, fields, cb) {
-            console.log("app/data/users.js return new user");
+            console.log("app/data/user.js return new user");
             exports.user_by_uuid(userid, cb);
         }
     ],
@@ -85,25 +99,26 @@ exports.register = function (email, display_name, password, callback) {
 
 function user_by_field (field, value, callback) {
     var dbc;
-    console.log("app/data/user.js user_by_field:", field, value);
+    console.log(`app/data/user.js user_by_field: '${field} '${value}'`);
     async.waterfall([
         // fetch the user.
         function (cb) {
             console.log("SELECT * FROM Users WHERE " + field
                     + " = ", value, "AND deleted = false");
             db.dbpool.query(
-                "SELECT * FROM Users WHERE " + field
-                    + " = ? AND deleted = false",
+              "SELECT * FROM Users WHERE " + field
+                 + " = ? AND deleted = false", 
                 [ value ],
                 cb);
         },
 
         function (rows, fields, cb) {
-    //        console.log("app/data/users.js rows:", rows);
-            if (!rows || rows.length == 0)
-                cb(backhelp.no_such_user());
+          //  console.log("app/data/user.js rows:", rows);
+            if (!rows || rows.length == 0) {
+				console.error("  users.find zero length");
+				cb(backhelp.no_such_user());}
             else {
-                console.log("app/data/users.js user name found");
+                console.log("app/data/user.js user name found");
                 cb(null, rows[0]);
             }
         }
@@ -111,10 +126,10 @@ function user_by_field (field, value, callback) {
 
     function (err, user_data) {
         if (err) {
-            console.log("app/data/users.js error handler:", user_data);
+            console.log("app/data/user.js error handler:", err);
             callback (err);
         } else {
-            console.log("app/data/users.js handler: success");
+            console.log("app/data/user.js handler: success");
             callback(null, user_data);
         }
     });

@@ -51,7 +51,7 @@ exports.init = function (callback) {
         function (cb) {
          //   db.collection("albums", cb);
             var dbName = local.config.db_config.database;
-            console.log("** 2. create albums and photos collections.", dbName);
+            console.log("** 2. access albums and photos collections.", dbName);
             db = client.db(dbName);  // new
             if (db == null) {cb(make_error(null, "Could not connect to client server"));} // new
     
@@ -76,8 +76,7 @@ exports.init = function (callback) {
         //    db.collection("users", cb);
             console.log("app data db.js users_coll");
             exports.users = db.collection("users")
-            if (exports.users == null) {
-                cb(make_error(null, "Could not connect to users client"))};
+            if (exports.users == null) {cb(make_error(null, "Could not connect to users client"))};
             cb(null);     
         },
 
@@ -94,7 +93,23 @@ exports.init = function (callback) {
             console.log("  Num photos:", all_photos.length);
             // all_albums.forEach(doc => console.log(doc));
             cb(null);
-        }						  
+        },
+
+        // list all users
+        function (cb) { 
+            console.log("Get the user list.");
+            exports.users.find({ }).toArray()
+                .then (data => cb(null, data))    // This will return an array of albums
+                .catch (err => cb(make_error(err, "Error 67 listing albums")));       
+        },        
+
+        // print the user list
+        function (all_users, cb) {
+            console.log("  Num users:", all_users.length);
+           // all_users.forEach(doc => console.log(doc));
+            cb(null);
+        },        
+
     ], callback);
 };
 

@@ -2,7 +2,10 @@
 // Install the Mongodb.com Compass Community edition as a service
 // The results of this data base are used in the next step
 
-// create an empty DB called: testdb and with a collection name of: users
+// npm install mongodb
+
+// THis will create an empty DB called: testdb and with a collection
+// name of: users and populate it with 2 users
 
 const { MongoClient } = require("mongodb");
 

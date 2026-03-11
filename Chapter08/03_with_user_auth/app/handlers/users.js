@@ -8,7 +8,7 @@ exports.version = "0.1.0";
 
 
 function User (user_data) {
-    console.log("app handlers users.js User");
+    console.log("app/handlers/users.js User");
     this.uuid = user_data["user_uuid"];
     this.email_address = user_data["email_address"];
     this.display_name = user_data["display_name"];
@@ -26,11 +26,12 @@ User.prototype.first_seen_date = null;
 User.prototype.last_modified_date = null;
 User.prototype.deleted = false;
 User.prototype.check_password = function (pw, callback) {
-    console.log("app handlers users.js .check_password");
+    console.log("app/handlers/users.js .check_password: pw", pw);
     bcrypt.compare(pw, this.password, callback);
 };
+
 User.prototype.response_obj = function () {
-    console.log("app handlers users.js .response_obj");
+    console.log("app/handlers/users.js .response_obj");
     return {
         uuid: this.uuid,
         email_address: this.email_address,
@@ -40,26 +41,29 @@ User.prototype.response_obj = function () {
     };
 };
 
-
-
 exports.register = function (req, res) {
-    console.log("app handlers users.js .register");
-    register.body.email_address = "rrepka10@gmail.com";  // rich
+    console.log("app/handlers/users.js .register");
+//    register.body.email_address = "rrepka10@gmail.com";  // rich
     async.waterfall([
         function (cb) {
             var em = req.body.email_address;
-            if (!em || em.indexOf("@") == -1)
-                cb(helpers.invalid_email_address());
-            else if (!req.body.display_name) 
-                cb(helpers.missing_data("display_name"));
-            else if (!req.body.password)
-                cb(helpers.missing_data("password"));
-            else
-                cb(null);
+            if (!em || em.indexOf("@") == -1) {
+                console.log("  Error invalid_email_address");
+                cb(helpers.invalid_email_address());}
+            else if (!req.body.display_name) {
+                console.log("  error, bad display_name");
+                cb(helpers.missing_data("display_name"));}
+            else if (!req.body.password) {
+                console.log("  error, missing password");
+                cb(helpers.missing_data("password"));}
+            else{
+                console.log("  input data validation GOOD");
+			cb(null);}
         },
 
         // register da user.
         function (cb) {
+            console.log("  building the user data structure");
             user_data.register(
                 req.body.email_address,
                 req.body.display_name,
@@ -69,16 +73,20 @@ exports.register = function (req, res) {
 
         // mark user as logged in
         function (user_data, cb) {
+            console.log("logging the user in");
             req.session.logged_in = true;
             req.session.logged_in_display_name = req.body.display_name;
             req.session.logged_in_date = new Date();
             cb(null, user_data);
         }
     ],
+
     function (err, user_data) {
         if (err) {
+            console.log("Error :", err);
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
         } else {
+            console.log("Success, users added");
             var u = new User(user_data);
             helpers.send_success(res, {user: u.response_obj() });
         }
@@ -87,7 +95,7 @@ exports.register = function (req, res) {
 
 
 exports.login = function (req, res) {
-    console.log("app handlers users.js .login");
+    console.log("app/handlers/users.js .login");
  //   console.log("request body", req);
     var em = req.body.email_address  
         ? req.body.email_address.trim().toLowerCase()
@@ -95,15 +103,23 @@ exports.login = function (req, res) {
 
     async.waterfall([
         function (cb) {
-            if (!em)
+            if (!em) {
+                console.log("  missing email address");
                 cb(helpers.missing_data("email_address"));
+            }
             else if (req.session
-                     && req.session.logged_in_email_address == em)
+                     && req.session.logged_in_email_address == em){
+                console.log("  already logged in");
                 cb(helpers.error("already_logged_in", ""));
-            else if (!req.body.password)
+                     }
+            else if (!req.body.password){
+                console.log("  missing password");
                 cb(helpers.missing_data("password"));
-            else
+            }
+            else{
+                console.log("  success");
                 cb(null);
+            }
         },
 
         // first get the user by the email address.
@@ -114,6 +130,8 @@ exports.login = function (req, res) {
         // check the password
         function (user_data, cb) {
             var u = new User(user_data);
+            console.log("  passed user data:", user_data);
+            console.log("  data base pw:", req.body.password);
             u.check_password(req.body.password, cb);
         },
 
@@ -130,10 +148,11 @@ exports.login = function (req, res) {
         }
     ],
     function (err, results) {
-        console.log("app handlers users.js .login waterfall error handler");
         if (!err || err.message == "already_logged_in") {
+            console.log("  ***** login success *****");
             helpers.send_success(res, { logged_in: true });
         } else {
+            console.log("  login error:", err);
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
         }
     });
@@ -141,7 +160,7 @@ exports.login = function (req, res) {
 
 
 exports.user_by_display_name = function (req, res) {
-    console.log("app handlers users.js .user_by_display_name");
+    console.log("app/handlers/users.js .user_by_display_name");
     async.waterfall([
         // first get the user by the email address.
         function (cb) {
@@ -149,7 +168,7 @@ exports.user_by_display_name = function (req, res) {
         }
     ],
     function (err, u) {
-        console.log("app handlers users.js user_by_display_name waterfall error handler");
+        console.log("app/handlers/users.js user_by_display_name waterfall error handler");
         if (!err) {
             helpers.send_success(res, { user: u.response_obj() });
         } else {
@@ -160,7 +179,7 @@ exports.user_by_display_name = function (req, res) {
 
 
 exports.authenticate_API = function (un, pw, callback) {
-    console.log("app handlers users.js .authenticate_API");
+    console.log("app/handlers/users.js .authenticate_API");
     async.waterfall([
         function (cb) {
             user_data.user_by_email_address(un, cb);
@@ -171,11 +190,13 @@ exports.authenticate_API = function (un, pw, callback) {
             u.check_password(pw, cb);
         }
     ],
+
     function (err, results) {
         if (!err) {
+            callback(new Error("  login successful"));
             callback(null, un);
         } else {
-            callback(new Error("bogus credentials"));
+            callback(new Error("  bad Email address or password"));
         }
     });
 };

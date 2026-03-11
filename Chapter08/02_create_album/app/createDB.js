@@ -1,7 +1,7 @@
-// This populates the data base 
+// This populates the photosharingapp data base 
+// with albums and photos
 
-// npm install async
-// npm install mongodb
+// npm install async mongodb
 
 const { MongoClient } = require('mongodb');
 const async = require('async');

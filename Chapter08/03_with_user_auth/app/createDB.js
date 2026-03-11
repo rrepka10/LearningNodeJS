@@ -1,7 +1,7 @@
-// This populates the mongo data base 
+// This populates the mongo data base with albums, photos and users.
+// No encryption, the mongo DB MUST BE EMPTY  
 
-// npm install async
-// npm install mongodb
+// npm install async mongodb
 
 const { MongoClient } = require('mongodb');
 const async = require('async');
@@ -30,7 +30,7 @@ var albums, photos, users;
 async.waterfall([
   function (cb) {
     console.log("This creates the data base entries for the 03_with_user_auth apps.");
-    console.log("The albums, photos and user clients must be empty on the DB server");
+    console.log("The albums, photos and user clients MUST BE EMPTY on the DB server");
        
     // Use connect method to connect to the Server
     MongoClient.connect(url)  
@@ -79,6 +79,16 @@ async.waterfall([
     .catch(err => cb(make_error(err, "Error inserting albums")));
   },
 
+  // Check to see if we can find one of the albums
+  function (cb) {
+    console.log("4. Find an album");
+    albums.find({ _id: 'italy2012' }).toArray()
+      .then (results => {cb(null);})
+      .catch (err => { 
+        console.log("Error finding album content");
+        cb(make_error(err, "Error, finding album content"));
+      });
+  },
 
   // let's add some photos 
   function (cb) {
@@ -169,7 +179,7 @@ async.waterfall([
               date: "2010/10/22 22:25:40" }
         ];
 
-  console.log("4. Add photos.");
+  console.log("5. Add photos.");
   photos.insertMany(pix)
     .then(result => cb(null))
     .catch(err => cb(make_error(err, "Error 207 inserting photos")));
@@ -181,22 +191,14 @@ async.waterfall([
                   userid: "rrepka10",
                   email_address:"rrepka10@gmail.com",
                   display_name:"Richard Repka",
-                  password: "hash1",
-                  first_seen_date: "123456", //now_in_s(),
-                  last_modified_date: "123456", //now_in_s(),
+                  password: "$2b$10$a1ytHaRFniZARAZMPEMpZuBwmql8Hals/fWFDLoIHy69oSd2lMYOG",
+                  first_seen_date: "1", //now_in_s(),
+                  last_modified_date: "1", //now_in_s(),
                   deleted: false
-                },
-                { _id:"rrepka10@yahoo.com",
-                  userid: "rrepka",
-                  email_address:"rrepka10@yahoo.com",
-                  display_name:"Richard R",
-                  password: "hash2",
-                  first_seen_date: "123456", //now_in_s(),
-                  last_modified_date: "123456", //now_in_s(),
-                  deleted: false
-                }];
+                }
+                ];
 
-  console.log("5. Create users.");
+  console.log("6. Create users.");
   users.insertMany(docs)
     .then(result => cb(null))
     .catch(err => cb(make_error(err, "Error inserting users ")));

@@ -4,7 +4,9 @@ var fs = require('fs');
 
 exports.verify = function (data, field_names) {
     for (var i = 0; i < field_names.length; i++) {
+     //   console.log("  verifying  ", field_names[i], "is", data[field_names[i]]);
         if (!data[field_names[i]]) {
+            console.log("  error, missing_data", field_names[i] + " not optional");
             throw exports.error("missing_data",
                                 field_names[i] + " not optional");
         }

@@ -1,6 +1,12 @@
 // This displays the contents of albums. This assumes the 
-// createDB.js program has been run to populate the 
+// --> createDB.js program has been run <-- to populate the 
 // "photosharingapp" data base with albums and photos
+
+// http:\\localhost:8080                       - home, lists 3 albums
+// http:\\localhost:8080/pages/album/italy2012 - the album content pictures 
+
+// http://localhost:8080/v1/albums.json                  - the raw json album list
+// http://localhost:8080/v1/albums/italy2012/photos.json - the raw json photo list
 
 // npm install express body-parser morgan multer
 

@@ -48,18 +48,23 @@ exports.register = function (req, res) {
     async.waterfall([
         function (cb) {
             var em = req.body.email_address;
-            if (!em || em.indexOf("@") == -1)
-                cb(helpers.invalid_email_address());
-            else if (!req.body.display_name) 
-                cb(helpers.missing_data("display_name"));
-            else if (!req.body.password)
-                cb(helpers.missing_data("password"));
-            else
-                cb(null);
+            if (!em || em.indexOf("@") == -1){
+				console.log("  Error invalid_email_address");							
+				cb(helpers.invalid_email_address());}
+            else if (!req.body.display_name) {
+                console.log("  error, bad display_name");
+			cb(helpers.missing_data("display_name"));}
+            else if (!req.body.password) {
+				console.log("  error, missing password");
+				cb(helpers.missing_data("password"));}
+            else {
+				console.log("  input data validation GOOD");
+				cb(null);}
         },
 
         // register da user.
         function (cb) {
+            console.log("  building the user data structure");
             user_data.register(
                 req.body.email_address,
                 req.body.display_name,
@@ -70,8 +75,10 @@ exports.register = function (req, res) {
     ],
     function (err, user_data) {
         if (err) {
+            console.log("Error :", err);
             helpers.send_failure(res, helpers.http_code_for_error(err), err);
         } else {
+            console.log("Success, users added");
             var u = new User(user_data);
             helpers.send_success(res, {user: u.response_obj() });
         }
@@ -98,6 +105,7 @@ exports.user_by_display_name = function (req, res) {
         }
     ],
     function (err, u) {
+        console.log("app/handlers/users.js user_by_display_name waterfall error handler");
         if (!err) {
             helpers.send_success(res, { user: u.response_obj() });
         } else {
@@ -129,6 +137,7 @@ exports.authenticate_user = function (un, pw, callback) {
                     "The given username/password are invalid."));
             }
         } else {
+			console.log("Error bogus credentials");
             callback(err);
         }
     });

@@ -12,7 +12,7 @@ exports.generateAdmin = function (req, res) {
 };
 
 exports.generate = function (req, res) {
-    console.log("app handlers pages.js .generate");
+    console.log("app/handlers/pages.js .generate");
 
     var page = req.params.page_name;
     if (req.params.sub_page && req.params.page_name == 'admin')
@@ -22,7 +22,7 @@ exports.generate = function (req, res) {
         'basic.html',
         function (err, contents) {
             if (err) {
-            console.log("app handlers pages.js - can't read basic.html");
+            console.log("app/handlers/pages.js - can't read basic.html");
                 helpers.send_failure(res, helpers.http_code_for_error(err), err);
                 return;
             }
@@ -39,7 +39,7 @@ exports.generate = function (req, res) {
 
 // if we made it here, then we're logged in. redirect to admin home
 exports.login = function (req, res) {
-    console.log("app handlers pages.js .login - success");
+    console.log("app/handlers/pages.js .login - success");
 
     res.redirect("/pages/admin/home");
     res.end();

@@ -33,7 +33,7 @@ exports.user_by_display_name = function (dn, callback) {
 }
 
 exports.user_by_email_address = function (email, callback) {
-    console.log("app/data/user.js .user_by_email_address");
+    console.log("app/data/user.js .user_by_email_address:", email);
     if (!email) {
         console.log("   missing email address");
         callback(backhelp.missing_data("email"));
@@ -50,23 +50,29 @@ exports.register = function (email, display_name, password, callback) {
         // validate ze params
         function (cb) {
             console.log("app/data/user.js .register");
-            if (!email || email.indexOf("@") == -1)
-                cb(backhelp.missing_data("email"));
-            else if (!display_name)
-                cb(backhelp.missing_data("display_name"));
-            else if (!password)
-                cb(backhelp.missing_data("password"));
-            else
+            if (!email || email.indexOf("@") == -1) {
+                console.log("  Error invalid_email_address");
+                cb(backhelp.missing_data("email")); }
+            else if (!display_name) {
+                console.log("  error, bad display_name");
+                cb(backhelp.missing_data("display_name"));}
+            else if (!password) {
+                console.log("  error, missing password");
+                cb(backhelp.missing_data("password")); }
+            else {
                 // generate a password hash
-                bcrypt.hash(password, 10, cb);
+                console.log("  encrypting the PW");
+                bcrypt.hash(password, 10, cb);}
         },
 
         // create the album in mongo.
         function (hash, cb) {
+            console.log("app/data/users.js register");
             var userid = uuid();
             // email must be unique, so use it as id
+            console.log("  Build the DB data structure");
             var write = {
-                _id: email_address,
+                _id: email,   //_address,
                 userid: userid,
                 email_address: email,
                 display_name: display_name,
@@ -75,7 +81,8 @@ exports.register = function (email, display_name, password, callback) {
                 last_modified_date: now_in_s(),
                 deleted: false
             };
-            db.users.insert(write, { w: 1, safe: true }, cb);
+            console.log("  adding the user to the DB");
+            db.users.insertOne(write, { w: 1, safe: true }, cb);
         },
 
         // fetch and return the new user.
@@ -99,30 +106,55 @@ exports.register = function (email, display_name, password, callback) {
 
 
 function user_by_field (field, value, callback) {
-    console.log("app/data/user.js user_by_field:", field, value);
-    console.log("  field:", field);
-    console.log("  value:", value);
     var o = {};
     o[field] = value;
+    console.log("app/data/user.js user_by_field JSON:", o);
 
-    db.albums.find( o ).toArray(function (err, results) {
+ //   db.users.find({ }).toArray()
+   //     .then (data => console.log("  global array:", data))
+     //   .catch (err => console.log("Error finding all albums", err));               
+    
+    db.users.find( o ).toArray()
+        .then (results => {
+            if (results.length == 0) {
+                console.error("  users.find zero length");
+                callback(null, null);
+            } else if (results.length == 1) {
+                console.error("  users.find one found");
+                callback(null, results[0]);
+            } else {
+                console.error("More than one user matching field: " + value);
+                console.error(results);
+                callback(backutils.db_error());
+            }
+        })
+        .catch (err => {
+            console.error("  users.find error");
+            callback(err);
+            return;
+         });
+    
+
+/*
+    db.users.find( o ).toArray(function (err, results) {
+        console.log("find results:", results);
         if (err) {
-            console.error("  albums.find error");
+            console.error("  users.find error");
             callback(err);
             return;
         }
         if (results.length == 0) {
-            console.error("  albums.find zero length");
+            console.error("  users.find zero length");
             callback(null, null);
         } else if (results.length == 1) {
-            console.error("  albums.find one found");
+            console.error("  users.find one found");
             callback(null, results[0]);
         } else {
             console.error("More than one user matching field: " + value);
             console.error(results);
             callback(backutils.db_error());
         }
-    });
+    });*/
 }
 
 

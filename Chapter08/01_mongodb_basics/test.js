@@ -1,6 +1,8 @@
 // This fully replaces the book test.js as it doesn't compile or run
 // be sure to create a base MongoDB entry of "waterfallDB: and "users"
 
+// npm install mongodb mongoose async
+
 // This uses the async waterfall pattern to perform a series of
 // MongoDB operations in sequence, passing results from one to the next.
 

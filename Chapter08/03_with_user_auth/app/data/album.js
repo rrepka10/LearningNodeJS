@@ -1,6 +1,6 @@
 
 var fs = require('fs'),
-    crypto = require("crypto"),
+ //   crypto = require("crypto"),
     local = require('../local.config.js'),
     db = require('./db.js'),
     path = require("path"),
@@ -11,8 +11,10 @@ exports.version = "0.1.0";
 
 
 exports.create_album = function (data, callback) {
-    var final_album;
+	 console.log("app/data/album.js create_album data:", data);
+
     var write_succeeded = false;
+    var final_album;	
     async.waterfall([
         // validate data.
         function (cb) {
@@ -22,9 +24,11 @@ exports.create_album = function (data, callback) {
                                   "title",
                                   "date",
                                   "description" ]);
-                if (!backhelp.valid_filename(data.name))
-                    throw invalid_album_name();
+                if (!backhelp.valid_filename(data.name)) {
+                    console.log("  error, invalid album name");
+                    throw invalid_album_name();}		 
             } catch (e) {
+                console.log("  error, could not verify album data structure:", e);
                 cb(e);
             }
             cb(null, data);
@@ -32,9 +36,11 @@ exports.create_album = function (data, callback) {
 
         // create the album in mongo.
         function (album_data, cb) {
+            console.log("app/data/album.js insert album_data:", album_data);
             var write = JSON.parse(JSON.stringify(album_data));
             write._id = album_data.name;
-            db.albums.insert(write, { w: 1, safe: true }, cb);
+            console.log("  album data:", write);
+            db.albums.insertOne(write, { w: 1, safe: true }, cb);  // was insert
         },
 
         // make sure the folder exists.
@@ -49,9 +55,9 @@ exports.create_album = function (data, callback) {
     
     function (err, results) {
         // convert file errors to something we like.
+        console.log("app/data/album.js convert errors");				  
         if (err) {
-            if (write_succeeded)
-                db.albums.remove({ _id: data.name }, function () {});
+            if (write_succeeded) db.albums.remove({ _id: data.name }, function () {});
 
             if (err instanceof Error && err.code == 11000) 
                 callback(backhelp.album_already_exists());
@@ -67,20 +73,15 @@ exports.create_album = function (data, callback) {
 
 
 exports.album_by_name = function (name, callback) {
-    console.log("app data album.js album_by_name", name);
-/*	  
-    db.albums.find({ _id: name }).toArray(function (err, results) {
-        if (err) {
-														
-            callback(err);
-            return;
-        }*/
+    console.log("app/data/album.js .album_by_name", name);
     db.albums.find({ _id: name }).toArray()
         .then (results => {        	
             console.log("  album found, num", results.lenght);
             if (results.length == 0) {
+                console.log("error, album not found");
                 callback(null, null);
             } else if (results.length == 1) {
+                console.log("good, one album found");
                 callback(null, results[0]);
             } else {
                 console.error("More than one album named: " + name);
@@ -89,10 +90,10 @@ exports.album_by_name = function (name, callback) {
             }
         })
         .catch (err => {
-            console.log("  could not find album", name);
+            console.log("  could not find album", err);
             callback(err);
             return;
-            })			
+        })			 
     };
 
 
@@ -131,7 +132,7 @@ exports.all_albums = function (sort_field, sort_desc, skip, count, callback) {
 exports.add_photo = function (photo_data, path_to_photo, callback) {
     var final_photo;
     var base_fn = path.basename(path_to_photo).toLowerCase();
-	console.log("app data album.js add_photo");											
+	console.log("app/data/album.js add_photo");											
     async.waterfall([
         // validate data
         function (cb) {
@@ -155,7 +156,7 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
         // add the photo to the collection
         function (pd, cb) {
             pd._id = pd.albumid + "_" + pd.filename;
-            db.photos.insert(pd, { w: 1, safe: true }, cb);
+            db.photos.insertOne(pd, { w: 1, safe: true }, cb);
         },
 
         // now copy the temp file to static content

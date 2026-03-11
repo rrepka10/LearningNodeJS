@@ -98,6 +98,8 @@ Photo.prototype.response_obj = function() {
  * Album module methods.
  */
 exports.create_album = function (req, res) {
+	console.log("app.put('/v1/albums.json', album_hdlr.create_album)");
+
     async.waterfall([
         // make sure the albumid is valid 
         function (cb) {
@@ -128,6 +130,8 @@ exports.create_album = function (req, res) {
 
 
 exports.album_by_name = function (req, res) {
+	console.log("app.get('/v1/albums/:album_name.json', album_hdlr.album_by_name)");
+
     async.waterfall([
         // get the album
         function (cb) {
@@ -155,6 +159,7 @@ exports.album_by_name = function (req, res) {
 
 
 exports.list_all = function (req, res) {
+	console.log("app.get('/v1/albums.json', album_hdlr.list_all)");
     console.log("app handlers albums.js .list_all");
     //                sort_field, sort_desc, skip, count, callback)
     album_data.all_albums("date", true, 0, 25, (err, results) => {
@@ -175,6 +180,8 @@ exports.list_all = function (req, res) {
 
 
 exports.photos_for_album = function(req, res) {
+	consoloe.log("app.get('/v1/albums/:album_name/photos.json', album_hdlr.photos_for_album)");
+
     var page_num = req.query.page ? req.query.page : 0;
     var page_size = req.query.page_size ? req.query.page_size : 1000;
 
@@ -225,6 +232,8 @@ exports.photos_for_album = function(req, res) {
 
 
 exports.add_photo_to_album = function (req, res) {
+	console.log("app.put('/v1/albums/:album_name/photos.json', upload.single('photo_file'), album_hdlr.add_photo_to_album)");
+
     var album;
     async.waterfall([
         // make sure we have everything we need.
